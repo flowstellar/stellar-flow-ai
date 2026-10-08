@@ -8,6 +8,17 @@ const corsHeaders = {
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
+interface HorizonBalance {
+  asset_type: string;
+  balance: string;
+  [key: string]: unknown;
+}
+
+interface HorizonAccount {
+  sequence: string;
+  balances?: HorizonBalance[];
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -47,11 +58,11 @@ Deno.serve(async (req) => {
       throw new Error(`Horizon API error [${res.status}]: ${await res.text()}`);
     }
 
-    const account = await res.json();
+    const account = (await res.json()) as HorizonAccount;
     const balances = account.balances || [];
 
     const xlmBalance =
-      balances.find((b: any) => b.asset_type === "native")?.balance || "0";
+      balances.find((b) => b.asset_type === "native")?.balance || "0";
     const xlmNum = parseFloat(xlmBalance);
     // Mock XLM price ~$0.50
     const usdValue = `$${(xlmNum * 0.5).toFixed(2)}`;
