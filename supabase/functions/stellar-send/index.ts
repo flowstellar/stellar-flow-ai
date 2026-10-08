@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d";
 import {
   Keypair,
   Networks,
@@ -16,6 +16,17 @@ const corsHeaders = {
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
+// Base reserve is 2 Lumens (0.5 XLM) per account + 0.5 XLM for each entry.
+// We conservatively use the minimum account reserve of 1 XLM for a basic account.
+const BASE_RESERVE_XLM = 1;
+const FEE_XLM = 0.00001;
+
+const jsonResponse = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -25,26 +36,20 @@ Deno.serve(async (req) => {
     const { secretKey, destination, amount, memo } = await req.json();
 
     if (!secretKey || !destination || !amount) {
-      return new Response(
-        JSON.stringify({
+      return jsonResponse(
+        {
           success: false,
           error: "secretKey, destination, and amount are required",
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
+        400
       );
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Amount must be a positive number" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      return jsonResponse(
+        { success: false, error: "Amount must be a positive number" },
+        400
       );
     }
 
@@ -53,24 +58,18 @@ Deno.serve(async (req) => {
     try {
       sourceKeypair = Keypair.fromSecret(secretKey);
     } catch {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid secret key" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      return jsonResponse(
+        { success: false, error: "Invalid secret key" },
+        400
       );
     }
 
     try {
       Keypair.fromPublicKey(destination);
     } catch {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid destination address" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      return jsonResponse(
+        { success: false, error: "Invalid destination address" },
+        400
       );
     }
 
@@ -84,6 +83,29 @@ Deno.serve(async (req) => {
       );
     }
     const sourceAccount = await accountRes.json();
+
+    // Read native balance from the loaded account
+    const nativeBalanceEntry = Array.isArray(sourceAccount.balances)
+      ? sourceAccount.balances.find(
+          (b: { asset_type?: string; balance?: string }) => b.asset_type === "native"
+        )
+      : undefined;
+    const nativeBalance = nativeBalanceEntry ? parseFloat(nativeBalanceEntry.balance ?? "0") : 0;
+
+    // Subtract base reserve and fee to compute spendable amount
+    const spendable = nativeBalance - BASE_RESERVE_XLM - FEE_XLM;
+    const spendableRounded = Math.floor(spendable * 1e7) / 1e7;
+
+    if (amountNum > spendableRounded) {
+      const available = spendableRounded > 0 ? spendableRounded : 0;
+      return jsonResponse(
+        {
+          success: false,
+          error: `Insufficient balance. Available amount: ${available.toFixed(7)} XLL`,
+        },
+        400
+      );
+    }
 
     // Check if destination exists
     const destRes = await fetch(`${HORIZON_URL}/accounts/${destination}`);
@@ -146,27 +168,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        hash: submitData.hash,
-        ledger: submitData.ledger,
-        fee: submitData.fee_charged,
-        createdAt: submitData.created_at,
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({
+      success: true,
+      hash: submitData.hash,
+      ledger: submitData.ledger,
+      fee: submitData.fee_charged,
+      createdAt: submitData.created_at,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("Send transaction error:", message);
-    return new Response(
-      JSON.stringify({ success: false, error: message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({ success: false, error: message }, 500);
   }
 });
