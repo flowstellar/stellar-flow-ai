@@ -25,7 +25,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [balanceLoading, setBalanceLoading] = useState(false);
 
-  const saveWallet = (w: WalletData) => {
+  const saveWallet = (w is: WalletData) => {
     setWallet(w);
     localStorage.setItem(WALLET_KEY, JSON.stringify(w));
   };
@@ -50,18 +50,21 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const walletPublicKey = wallet?.publicKey ?? null;
+  const walletSecretKey = wallet?.secretKey ?? null;
+
   const refreshBalance = useCallback(async () => {
-    if (!wallet) return;
+    if (!walletPublicKey) return;
     setBalanceLoading(true);
     try {
-      const data = await stellarApi.getBalance(wallet.publicKey);
+      const data = await stellarApi.getBalance(walletPublicKey);
       setBalance(data);
     } catch (e) {
       console.error('Balance fetch error:', e);
     } finally {
       setBalanceLoading(false);
     }
-  }, [wallet]);
+  }, [walletPublicKey]);
 
   const logout = useCallback(() => {
     setWallet(null);
@@ -69,12 +72,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(WALLET_KEY);
   }, []);
 
-  // Fetch balance when wallet changes
+  // Fetch balance when wallet changes. Depending on the public key and the
+  // secret key ensures a refetch when the wallet is reconciled to a different
+  // secret under the same public key, while depending on refreshBalance
+  // satisfies react-hooks/exhaustive-deps.
   useEffect(() => {
-    if (wallet) {
-      refreshBalance();
-    }
-  }, [wallet?.publicKey]);
+    if (!walletPublicKey) return;
+    refreshBalance();
+  }, [walletPublicKey, walletSecretKey, refreshBalance]);
 
   return (
     <WalletContext.Provider value={{ wallet, balance, loading, balanceLoading, createWallet, importWallet, refreshBalance, logout }}>
