@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Bot, Globe, CreditCard, BarChart3, ArrowUpRight, Send, Wallet, Clock, Star, ChevronRight } from 'lucide-react';
 
@@ -9,6 +9,14 @@ const fadeUp = {
 
 const Landing = () => {
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
+
+  const fadeUpVariants = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0 } },
+      }
+    : fadeUp;
 
   const goApp = () => navigate('/app');
 
@@ -50,7 +58,7 @@ const Landing = () => {
           <div>
             <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}
               className="inline-flex items-center gap-2 glass-card px-4 py-1.5 rounded-full mb-6">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
+              <span className={`w-2 h-2 rounded-full bg-primary ${prefersReducedMotion ? '' : 'animate-pulse-glow'}`} />
               <span className="text-xs text-muted-foreground">Live on Stellar Testnet</span>
             </motion.div>
             <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1}
@@ -87,7 +95,7 @@ const Landing = () => {
             <div className="glass-card p-6 rounded-3xl glow-green space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Total Balance</span>
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
+                <span className={`w-2 h-2 rounded-full bg-primary ${prefersReducedMotion ? '' : 'animate-pulse-glow'}`} />
               </div>
               <p className="text-3xl font-bold glow-text-green">2,847.53 <span className="text-lg text-muted-foreground">XLM</span></p>
               <p className="text-sm text-muted-foreground">≈ $1,423.76</p>
