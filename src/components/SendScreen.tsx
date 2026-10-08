@@ -9,7 +9,7 @@ import { stellarApi } from '@/lib/stellarApi';
 import ScheduledPayments from './ScheduledPayments';
 import PinLock from './PinLock';
 
-const ASSETS = ['XLM'];
+const ASSETS = ['XLM';
 
 const SendScreen = () => {
   const { wallet, refreshBalance } = useWallet();
@@ -24,6 +24,7 @@ const SendScreen = () => {
   const [sent, setSent] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [showPinVerify, setShowPinVerify] = useState(false);
+  const [parsedAmount, setParsedAmount] = useState<number | null>(null);
 
   const handleSend = () => {
     if (!wallet) {
@@ -34,10 +35,12 @@ const SendScreen = () => {
       toast({ title: 'Missing fields', description: 'Please fill in all fields', variant: 'destructive' });
       return;
     }
-    if (parseFloat(amount) <= 0) {
+    const amountNum = Number(amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
       toast({ title: 'Invalid amount', description: 'Amount must be positive', variant: 'destructive' });
       return;
     }
+    setParsedAmount(amountNum);
     // If PIN is set, require verification first
     if (isPinSet) {
       setShowPinVerify(true);
@@ -57,12 +60,18 @@ const SendScreen = () => {
 
   const confirmSend = async () => {
     if (!wallet) return;
+    const amountNum = parsedAmount !== null ? parsedAmount : Number(amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      toast({ title: 'Invalid amount', description: 'Amount must be positive', variant: 'destructive' });
+      setShowConfirm(false);
+      return;
+    }
     setSending(true);
     try {
       const result = await stellarApi.sendPayment({
         secretKey: wallet.secretKey,
         destination: recipient,
-        amount,
+        amount: String(amountNum),
         memo: memo || undefined,
       });
       setTxHash(result.hash);
@@ -76,6 +85,7 @@ const SendScreen = () => {
         setAmount('');
         setMemo('');
         setTxHash('');
+        setParsedAmount(null);
       }, 2500);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Transaction failed';
@@ -127,7 +137,7 @@ const SendScreen = () => {
               className="mt-2 glass-card p-2 space-y-1">
               {ASSETS.map((a) => (
                 <button key={a} onClick={() => { setAsset(a); setShowAssets(false); }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${a === asset ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50'}`}>
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${a === asset ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50'}`>
                   {a}
                 </button>
               ))}
@@ -187,7 +197,7 @@ const SendScreen = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="text-foreground font-semibold">{amount} {asset}</span>
+                <span className="text-foreground font-semibold">{parsedAmount !== null ? parsedAmount : amount} {asset}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Network</span>
@@ -209,7 +219,7 @@ const SendScreen = () => {
             <DialogFooter>
               <button onClick={confirmSend} disabled={sending}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}
