@@ -214,15 +214,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     const { destination, amount, asset, memo } = msg.txPending;
 
     try {
-      // Step 1: Building
-      updateTxStatus(msgId, 'building');
-      await new Promise(r => setTimeout(r, 800));
-
-      // Step 2: Signing
-      updateTxStatus(msgId, 'signing');
-      await new Promise(r => setTimeout(r, 600));
-
-      // Step 3: Submitting
+      // Single in-flight state driven by the real network call
       updateTxStatus(msgId, 'submitting');
 
       const result = await stellarApi.sendPayment({
@@ -231,10 +223,6 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
         amount,
         memo,
       });
-
-      // Step 4: Confirming
-      updateTxStatus(msgId, 'confirming');
-      await new Promise(r => setTimeout(r, 500));
 
       // Save to history
       saveTxHistory({
@@ -292,10 +280,6 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
 
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: msg };
     setMessages(prev => [...prev, userMsg]);
-
-    setTyping(true);
-    await new Promise(r => setTimeout(r, 500 + Math.random() * 300));
-    setTyping(false);
 
     const response = parseCommand(msg);
     const aiMsg: Message = {
