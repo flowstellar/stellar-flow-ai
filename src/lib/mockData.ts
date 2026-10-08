@@ -28,7 +28,7 @@ export interface ScheduledPayment {
   active: boolean;
 }
 
-export const WALLET_ADDRESS = 'GDRQHFT2XKGCV7MWZXHXQG5FYCXLMUHKG4';
+export const WALLET_ADDRESS = 'GDRQHFT2XKGCV7MWZXHXQG5FYCXMUHKG4';
 
 export const BALANCE = {
   xlm: '2,847.53',
