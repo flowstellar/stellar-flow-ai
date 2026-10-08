@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { stellarApi, WalletData, BalanceData } from '@/lib/stellarApi';
+import { TX_HISTORY_KEY } from '@/lib/tyHistory';
 
 interface WalletContextType {
   wallet: WalletData | null;
@@ -67,6 +68,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     setWallet(null);
     setBalance(null);
     localStorage.removeItem(WALLET_KEY);
+    localStorage.removeItem(TX_HISTORY_KEY);
   }, []);
 
   // Fetch balance when wallet changes

@@ -6,6 +6,7 @@ import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
 import { stellarApi } from '@/lib/stellarApi';
 import PinLock from './PinLock';
+import { TX_HISTORY_KEY, loadTxHistory, saveTxHistory } from '@/lib/txHistory';
 
 interface TxPending {
   destination: string;
@@ -42,20 +43,6 @@ interface TxHistoryEntry {
   timestamp: string;
   status: 'success' | 'error';
 }
-
-const TX_HISTORY_KEY = 'stellarflow_ai_tx_history';
-
-const loadTxHistory = (): TxHistoryEntry[] => {
-  try {
-    return JSON.parse(localStorage.getItem(TX_HISTORY_KEY) || '[]');
-  } catch { return []; }
-};
-
-const saveTxHistory = (entry: TxHistoryEntry) => {
-  const history = loadTxHistory();
-  history.unshift(entry);
-  localStorage.setItem(TX_HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
-};
 
 const EXAMPLE_PROMPTS = [
   { text: 'Send 10 XLM to GDEMO...', icon: ArrowUpRight },
