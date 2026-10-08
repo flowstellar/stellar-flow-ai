@@ -16,18 +16,57 @@ const WalletContext = createContext<WalletContextType | null>(null);
 
 const WALLET_KEY = 'stellarflow_wallet';
 
+const isStellarSecretKey = (value: unknown): boolean => {
+  if (typeof value !== 'string') return false;
+  return /^S[A-Z0-9]{56}$/.test(value);
+};
+
+const containsPlainSecretKey = (value: unknown): boolean => {
+  if (typeof value === 'string') return isStellarSecretKey(value);
+  if (Array.isArray(value)) return value.some(containsPlainSecretKey);
+  if (value && typeof value === 'object') {
+    return Object.values(value as Record<string, unknown>).some(containsPlainSecretKey);
+  }
+  return false;
+};
+
+const sanitizeWalletForStorage = (wallet: WalletData): Omit<WalletData, 'secretKey'> => {
+  const { secretKey: __secretKey, ...safe } = wallet;
+  return safe;
+};
+
+const persistWallet = (wallet: WalletData) => {
+  const safe = sanitizeWalletForStorage(wallet);
+  if (containsPlainSecretKey(safe)) {
+    throw new Error('Refusing to persist wallet containing a plaintext secret key');
+  }
+  localStorage.setItem(WALLET_KEY, JSON.stringify(safe));
+};
+
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
-  const [wallet, setWallet] = useState<WalletData | null>(() => {
-    const stored = localStorage.getItem(WALLET_KEY);
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [wallet, setWallet] = useState<WalletData | null>(null);
   const [balance, setBalance] = useState<BalanceData | null>(null);
   const [loading, setLoading] = useState(false);
   const [balanceLoading, setBalanceLoading] = useState(false);
 
+  // Only non-sensitive metadata is restored on load. The secret key is never
+  // read from localStorage and must be re-provided by the user (e.g. via the PIN flow).
+  const [publicKey, setPublicKey] = useState<string | null>(() => {
+    try {
+      const stored = localStorage.getItem(WALLET_KEY);
+      if (!stored) return null;
+      const parsed = JSON.parse(stored) as Partial<WalletData> | null;
+      if (!parsed || typeof parsed.publicKey !== 'string') return null;
+      return parsed.publicKey;
+    } catch {
+      return null;
+    }
+  });
+
   const saveWallet = (w: WalletData) => {
     setWallet(w);
-    localStorage.setItem(WALLET_KEY, JSON.stringify(w));
+    setPublicKey(w.publicKey);
+    persistWallet(w);
   };
 
   const createWallet = useCallback(async () => {
@@ -51,21 +90,23 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const refreshBalance = useCallback(async () => {
-    if (!wallet) return;
+    const address = wallet?.publicKey ?? publicKey;
+    if (!address) return;
     setBalanceLoading(true);
     try {
-      const data = await stellarApi.getBalance(wallet.publicKey);
+      const data = await stellarApi.getBalance(address);
       setBalance(data);
     } catch (e) {
       console.error('Balance fetch error:', e);
     } finally {
       setBalanceLoading(false);
     }
-  }, [wallet]);
+  }, [wallet?.publicKey, publicKey]);
 
   const logout = useCallback(() => {
     setWallet(null);
     setBalance(null);
+    setPublicKey(null);
     localStorage.removeItem(WALLET_KEY);
   }, []);
 
