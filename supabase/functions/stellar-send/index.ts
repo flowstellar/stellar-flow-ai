@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
 import {
   Keypair,
   Networks,
@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     // Validate keys
     let sourceKeypair: InstanceType<typeof Keypair>;
     try {
-      sourceKeypair = Keypair.fromSecret(secretKey);
+      sourceKeypair = Keypair.fromSecretKey(secretKey);
     } catch {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid secret key" }),

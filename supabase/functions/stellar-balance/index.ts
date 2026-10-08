@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,75 +8,73 @@ const corsHeaders = {
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
+const XLM_USD_PRICE = 0.5;
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ success: false, error: "Method not allowed" }, 405);
+  }
+
   try {
-    const { publicKey } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const publicKey = typeof body?.publicKey === "string" ? body.publicKey.trim() : "";
 
     if (!publicKey) {
-      return new Response(
-        JSON.stringify({ success: false, error: "publicKey is required" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+      return jsonResponse(
+        { success: false, error: "publicKey is required" },
+        400,
       );
     }
 
     // Fetch account from Horizon
-    const res = await fetch(`${HORIZON_URL}/accounts/${publicKey}`);
+    const res = await fetch(
+      `${HORIZON_URL}/accounts/${encodeURIComponent(publicKey)}`,
+    );
 
     if (!res.ok) {
       if (res.status === 404) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            funded: false,
-            balances: [{ asset_type: "native", balance: "0" }],
-            xlmBalance: "0",
-            usdValue: "$0.00",
-          }),
-          {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
+        return jsonResponse({
+          success: true,
+          funded: false,
+          balances: [{ asset_type: "native", balance: "0" }],
+          xlmBalance: "0.00",
+          usdValue: "$0.00",
+        });
       }
       throw new Error(`Horizon API error [${res.status}]: ${await res.text()}`);
     }
 
     const account = await res.json();
-    const balances = account.balances || [];
+    const balances = Array.isArray(account.balances) ? account.balances : [];
 
-    const xlmBalance =
-      balances.find((b: any) => b.asset_type === "native")?.balance || "0";
-    const xlmNum = parseFloat(xlmBalance);
-    // Mock XLM price ~$0.50
-    const usdValue = `$${(xlmNum * 0.5).toFixed(2)}`;
+    const native = balances.find(
+      (b: { asset_type?: string }) => b.asset_type === "native",
+    ) as { balance?: string } | undefined;
+    const xlmBalance = native?.balance ?? "0";
+    const xlmNum = Number.parseFloat(xlmBalance);
+    const usdValue = `$${(xlmNum * XLM_USD_PRICE).toFixed(2)}`;
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        funded: true,
-        balances,
-        xlmBalance: xlmNum.toFixed(2),
-        usdValue,
-        sequence: account.sequence,
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({
+      success: true,
+      funded: true,
+      balances,
+      xlmBalance: xlmNum.toFixed(2),
+      usdValue,
+      sequence: account.sequence,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ success: false, error: message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({ success: false, error: message }, 500);
   }
 });

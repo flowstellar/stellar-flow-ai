@@ -1,5 +1,5 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { Keypair } from "npm:@stellar/stellar-sdk@13";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
+import { Keypair } from "npm:@stellar/stellar-sdk13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
