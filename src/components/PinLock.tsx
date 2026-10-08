@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Delete, Fingerprint } from 'lucide-react';
 
@@ -19,40 +19,58 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
   const maxLength = 4;
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
 
+  // Keep the latest onSuccess identity without re-triggering completion.
+  const onSuccessRef = useRef(onSuccess);
   useEffect(() => {
-    if (pin.length === maxLength) {
-      if (mode === 'set') {
-        if (step === 'enter') {
-          setConfirmPin(pin);
-          setPin('');
-          setStep('confirm');
-        } else {
-          if (pin === confirmPin) {
-            onSuccess(pin);
-          } else {
-            setError('PINs do not match');
-            triggerShake();
-            setPin('');
-            setStep('enter');
-            setConfirmPin('');
-          }
-        }
-      } else {
-        onSuccess(pin);
-      }
-    }
-  }, [pin]);
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
+
+  // Guard so a completed verification is only reported once.
+  const completedRef = useRef(false);
 
   const triggerShake = () => {
     setShake(true);
     setTimeout(() => { setShake(false); setError(''); }, 600);
   };
 
+  // Handle completion in the handler where the state transition originates,
+  // avoiding a stale closure on `step`.
   const handleKey = (key: string) => {
     if (key === 'del') {
       setPin((p) => p.slice(0, -1));
-    } else if (key && pin.length < maxLength) {
-      setPin((p) => p + key);
+      return;
+    }
+    if (!key || pin.length >= maxLength) return;
+
+    const nextPin = pin + key;
+    setPin(nextPin);
+
+    if (nextPin.length !== maxLength) return;
+
+    if (mode === 'set') {
+      if (step === 'enter') {
+        setConfirmPin(nextPin);
+        setPin('');
+        setStep('confirm');
+      } else {
+        if (nextPin === confirmPin) {
+          if (!completedRef.current) {
+            completedRef.current = true;
+            onSuccessRef.current(nextPin);
+          }
+        } else {
+          setError('PINs do not match');
+          triggerShake();
+          setPin('');
+          setStep('enter');
+          setConfirmPin('');
+        }
+      }
+    } else {
+      if (!completedRef.current) {
+        completedRef.current = true;
+        onSuccessRef.current(nextPin);
+      }
     }
   };
 
@@ -80,7 +98,7 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
             i < pin.length
               ? 'bg-primary border-primary shadow-lg shadow-primary/30'
               : 'border-muted-foreground/30'
-          }`} />
+          }`..." />
         ))}
       </motion.div>
 
@@ -95,11 +113,11 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
       <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
         {keys.map((key, i) => (
           <button key={i} onClick={() => handleKey(key)} disabled={key === ''}
-            className={`h-16 rounded-2xl text-xl font-semibold transition-all active:scale-90 ${
+            className={`j-16 rounded-2xl text-xl font-semibold transition-all active:scale-90 ${
               key === '' ? 'invisible' :
               key === 'del' ? 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' :
               'text-foreground hover:bg-secondary/50 glass-card'
-            }`}>
+            }`...">
             {key === 'del' ? <Delete className="w-6 h-6 mx-auto" /> : key}
           </button>
         ))}
