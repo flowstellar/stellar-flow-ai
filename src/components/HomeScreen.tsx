@@ -54,19 +54,19 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/5 blur-3xl" />
         <div className="flex items-center justify-between mb-1">
           <p className="text-muted-foreground text-sm">Total Balance</p>
-          <button onClick={refreshBalance} disabled={balanceLoading}
+          <button onClick={refreshBalance} disabled={balanceLoading} aria-label="Refresh balance"
             className="text-muted-foreground hover:text-foreground transition-colors">
-            {balanceLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            {balanceLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <RefreshCw className="w-4 h-4" aria-hidden="true" />}
           </button>
         </div>
         <h2 className="text-3xl font-bold text-foreground glow-text-green">
           {xlmBalance} <span className="text-lg text-muted-foreground">XLM</span>
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">≈ {usdValue}</p>
+        <p className="text-sm text-muted-foreground mt-1">≈  {usdValue}</p>
         {wallet && (
-          <button onClick={copyAddress} className="mt-3 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={copyAddress} aria-label="Copy wallet address" className="mt-3 flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
             <span className="font-mono truncate max-w-[180px]">{truncatedAddress}</span>
-            <Copy className="w-3 h-3 shrink-0" />
+            <Copy className="w-3 h-3 shrink-0" aria-hidden="true" />
           </button>
         )}
         {!wallet && (
@@ -102,7 +102,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
           <button key={item.label} onClick={item.action}
             className="glass-card p-3 flex flex-col items-center gap-1.5 hover:bg-secondary/50 transition-colors active:scale-95">
             <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
-              <item.icon className={`w-4 h-4 ${item.color}`} />
+              <item.icon className={`w-4 h-4 ${item.color}`} aria-hidden="true" />
             </div>
             <span className="text-[10px] font-medium text-foreground">{item.label}</span>
           </button>
@@ -113,7 +113,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
         className="glass-card p-4 flex items-center gap-3 gradient-border">
         <div className="w-8 h-8 rounded-lg neon-gradient flex items-center justify-center shrink-0">
-          <Sparkles className="w-4 h-4 text-primary-foreground" />
+          <Sparkles className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
         </div>
         <div className="space-y-0.5">
           <p className="text-xs text-secondary-foreground">You saved <span className="text-primary font-semibold">30% in fees</span> using Stellar this week 🎉</p>
@@ -146,7 +146,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         </div>
         {/* AI tip */}
         <div className="bg-accent/5 rounded-xl px-3 py-2 flex items-center gap-2">
-          <TrendingUp className="w-3.5 h-3.5 text-accent shrink-0" />
+          <TrendingUp className="w-3.5 h-3.5 text-accent shrink-0" aria-hidden="true" />
           <p className="text-[11px] text-muted-foreground">You are spending more on transfers this week. Consider batching payments.</p>
         </div>
       </motion.div>
@@ -179,7 +179,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
             <div key={tx.id} className="glass-card p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${tx.type === 'sent' ? 'bg-destructive/10' : 'bg-primary/10'}`}>
-                  {tx.type === 'sent' ? <ArrowUpRight className="w-4 h-4 text-destructive" /> : <ArrowDownLeft className="w-4 h-4 text-primary" />}
+                  {tx.type === 'sent' ? <ArrowUpRight className="w-4 h-4 text-destructive" aria-hidden="true" /> : <ArrowDownLeft className="w-4 h-4 text-primary" aria-hidden="true" />}
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{tx.type === 'sent' ? 'Sent' : 'Received'}</p>
