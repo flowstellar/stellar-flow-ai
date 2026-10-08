@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
 import { stellarApi } from '@/lib/stellarApi';
+import { signAndSubmitWithPin } from '@/lib/signing';
 import PinLock from './PinLock';
 
 interface TxPending {
@@ -13,6 +14,7 @@ interface TxPending {
   asset: string;
   memo?: string;
   status?: 'awaiting' | 'pin' | 'building' | 'signing' | 'submitting' | 'confirming';
+  pin?: string;
 }
 
 interface TxResult {
@@ -191,7 +193,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
       updateTxStatus(msgId, 'pin');
       setShowPinFor(msgId);
     } else {
-      executeTx(msgId);
+      toast({ title: 'PIN required', description: 'Set a PIN to authorize payments', variant: 'destructive' });
     }
   };
 
@@ -200,13 +202,13 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     if (verifyPin(pin)) {
       const msgId = showPinFor;
       setShowPinFor(null);
-      executeTx(msgId);
+      executeTx(msgId, pin);
     } else {
       toast({ title: 'Wrong PIN', description: 'Please try again', variant: 'destructive' });
     }
   };
 
-  const executeTx = async (msgId: string) => {
+  const executeTx = async (msgId: string, pin: string) => {
     const msg = messages.find(m => m.id === msgId);
     if (!msg?.txPending || !wallet) return;
 
@@ -225,8 +227,9 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
       // Step 3: Submitting
       updateTxStatus(msgId, 'submitting');
 
-      const result = await stellarApi.sendPayment({
-        secretKey: wallet.secretKey,
+      const result = await signAndSubmitWithPin({
+        pin,
+        publicKey: wallet.publicKey,
         destination,
         amount,
         memo,

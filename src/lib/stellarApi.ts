@@ -2,7 +2,6 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface WalletData {
   publicKey: string;
-  secretKey: string;
   network: string;
 }
 
@@ -27,7 +26,7 @@ export const stellarApi = {
     });
     if (error) throw new Error(error.message || 'Failed to create wallet');
     if (!data.success) throw new Error(data.error);
-    return data;
+    return { publicKey: data.publicKey, network: data.network };
   },
 
   async importWallet(secretKey: string): Promise<WalletData> {
@@ -36,7 +35,7 @@ export const stellarApi = {
     });
     if (error) throw new Error(error.message || 'Failed to import wallet');
     if (!data.success) throw new Error(data.error);
-    return data;
+    return { publicKey: data.publicKey, network: data.network };
   },
 
   async getBalance(publicKey: string): Promise<BalanceData> {
@@ -49,7 +48,6 @@ export const stellarApi = {
   },
 
   async sendPayment(params: {
-    secretKey: string;
     destination: string;
     amount: string;
     memo?: string;

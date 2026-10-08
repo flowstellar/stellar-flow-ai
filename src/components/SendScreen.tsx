@@ -9,7 +9,7 @@ import { stellarApi } from '@/lib/stellarApi';
 import ScheduledPayments from './ScheduledPayments';
 import PinLock from './PinLock';
 
-const ASSETS = ['XLM'];
+const ASSETS = ['XLM', 'USDC'];
 
 const SendScreen = () => {
   const { wallet, refreshBalance } = useWallet();
@@ -24,6 +24,7 @@ const SendScreen = () => {
   const [sent, setSent] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [showPinVerify, setShowPinVerify] = useState(false);
+  const [pendingPin, setPendingPin] = useState<string | null>(null);
 
   const handleSend = () => {
     if (!wallet) {
@@ -42,12 +43,14 @@ const SendScreen = () => {
     if (isPinSet) {
       setShowPinVerify(true);
     } else {
+      setPendingPin(null);
       setShowConfirm(true);
     }
   };
 
   const handlePinSuccess = (pin: string) => {
     if (verifyPin(pin)) {
+      setPendingPin(pin);
       setShowPinVerify(false);
       setShowConfirm(true);
     } else {
@@ -60,10 +63,11 @@ const SendScreen = () => {
     setSending(true);
     try {
       const result = await stellarApi.sendPayment({
-        secretKey: wallet.secretKey,
+        publicKey: wallet.publicKey,
         destination: recipient,
         amount,
         memo: memo || undefined,
+        pin: pendingPin ?? undefined,
       });
       setTxHash(result.hash);
       setSent(true);
@@ -76,11 +80,13 @@ const SendScreen = () => {
         setAmount('');
         setMemo('');
         setTxHash('');
+        setPendingPin(null);
       }, 2500);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Transaction failed';
       toast({ title: 'Transaction failed', description: msg, variant: 'destructive' });
       setShowConfirm(false);
+      setPendingPin(null);
     } finally {
       setSending(false);
     }
@@ -127,7 +133,7 @@ const SendScreen = () => {
               className="mt-2 glass-card p-2 space-y-1">
               {ASSETS.map((a) => (
                 <button key={a} onClick={() => { setAsset(a); setShowAssets(false); }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${a === asset ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50'}`}>
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${a === asset ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50'}`>
                   {a}
                 </button>
               ))}
@@ -209,7 +215,7 @@ const SendScreen = () => {
             <DialogFooter>
               <button onClick={confirmSend} disabled={sending}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <><span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Sending...</span></font> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}
