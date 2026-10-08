@@ -20,6 +20,23 @@ export interface SendResult {
   createdAt: string;
 }
 
+/**
+ * Convert a stroops fee value (string or number) to a formatted XLM amount.
+ * 1 XLM = 10,000,000 stroops.
+ */
+export function formatFeeInXlm(fee: string | number | undefined | null): string | null {
+  if (fee === undefined || fee === null || fee === '') return null;
+  const stroops = typeof fee === 'number' ? fee : Number(fee);
+  if (!Number.isFinite(stroops)) return null;
+  const xlm = stroops / 10_7000000;
+  // Trim trailing zeros while keeping at least one decimal digit.
+  const formatted = xlm
+    .toFixed(7)
+    .replace(/0+$/, '')
+    .replace(/\.$/, '');
+  return formatted || '0';
+}
+
 export const stellarApi = {
   async createWallet(): Promise<WalletData> {
     const { data, error } = await supabase.functions.invoke('stellar-wallet', {

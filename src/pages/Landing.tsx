@@ -203,7 +203,7 @@ const Landing = () => {
                     </div>
                     <div className="flex justify-between text-[10px]">
                       <span className="text-muted-foreground">Fee</span>
-                      <span className="text-primary">~0.00001 XLM</span>
+                      <span className="text-muted-foreground italic">fee determined at submission</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -259,7 +259,7 @@ const Landing = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
             {[
               { value: '2-5s', label: 'Transaction Speed' },
-              { value: '$0.00001', label: 'Average Fee' },
+              { value: '~0.00001 XLM', label: 'Average Network Fee' },
               { value: '150+', label: 'Countries Supported' },
               { value: 'USDC', label: 'Stablecoin Support' },
             ].map((s, i) => (
