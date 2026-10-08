@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { CalendarClock, ToggleRight } from 'lucide-react';
-import { SCHEDULED_PAYMENTS } from '@/lib/mockData';
+import { CalendarClock } from 'lucide-react';
+import { SCHEDULED_PAYMENTS } from '-/lib/mockData';
 
 const ScheduledPayments = () => {
   return (
@@ -16,7 +16,16 @@ const ScheduledPayments = () => {
               <p className="text-xs text-muted-foreground font-mono">{sp.recipient}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{sp.frequency} • Next: {sp.nextDate}</p>
             </div>
-            <ToggleRight className={`w-6 h-6 ${sp.active ? 'text-primary' : 'text-muted-foreground'}`} />
+            <span
+              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide select-none ${
+                sp.active
+                  ? 'border-primary/40 bg-primary/10 text-primary'
+                  : 'border-muted bg-muted/20 text-muted-foreground'
+              }`}
+              data-testid={`scheduled-payment-status-${sp.id}`}
+            >
+              {sp.active ? 'Active' : 'Paused'}
+            </span>
           </div>
         ))}
       </div>
