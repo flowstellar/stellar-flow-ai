@@ -16,7 +16,7 @@ const ScheduledPayments = () => {
               <p className="text-xs text-muted-foreground font-mono">{sp.recipient}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{sp.frequency} • Next: {sp.nextDate}</p>
             </div>
-            <ToggleRight className={`w-6 h-6 ${sp.active ? 'text-primary' : 'text-muted-foreground'}`} />
+            <ToggleRight aria-hidden="true" className={`w-6 h-6 ${sp.active ? 'text-primary' : 'text-muted-foreground'}`} />
           </div>
         ))}
       </div>
