@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ChevronDown, Loader2, CheckCircle2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -24,6 +24,20 @@ const SendScreen = () => {
   const [sent, setSent] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [showPinVerify, setShowPinVerify] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearResetTimer = () => {
+    if (resetTimerRef.current !== null) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearResetTimer();
+    };
+  }, []);
 
   const handleSend = () => {
     if (!wallet) {
@@ -57,6 +71,7 @@ const SendScreen = () => {
 
   const confirmSend = async () => {
     if (!wallet) return;
+    clearResetTimer();
     setSending(true);
     try {
       const result = await stellarApi.sendPayment({
@@ -69,13 +84,14 @@ const SendScreen = () => {
       setSent(true);
       await refreshBalance();
       toast({ title: 'Payment sent successfully! ✅', description: `You sent money across borders instantly.` });
-      setTimeout(() => {
+      resetTimerRef.current = setTimeout(() => {
         setShowConfirm(false);
         setSent(false);
         setRecipient('');
         setAmount('');
         setMemo('');
         setTxHash('');
+        resetTimerRef.current = null;
       }, 2500);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Transaction failed';
@@ -148,7 +164,7 @@ const SendScreen = () => {
         </button>
 
         {isPinSet && (
-          <p className="text-[10px] text-muted-foreground text-center">🔒 PIN verification required before sending</p>
+          <p className="text-[10px] text-muted-foreground text-center">🔂 PIN verification required before sending</p>
         )}
       </motion.div>
 
@@ -183,7 +199,7 @@ const SendScreen = () => {
             <div className="space-y-3 py-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">To</span>
-                <span className="text-foreground font-mono text-xs truncate max-w-[180px]">{recipient}</span>
+                <span className="text-foreground font-mono texl-xs truncate max-w-[180px]">{recipient}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
@@ -195,7 +211,7 @@ const SendScreen = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Fee</span>
-                <span className="text-primary text-xs">~0.00001 XLM</span>
+                <span className="text-primary texl-xs">~0.00001 XLM</span>
               </div>
               {memo && (
                 <div className="flex justify-between text-sm">
