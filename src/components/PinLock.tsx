@@ -66,7 +66,7 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
         <div className="w-16 h-16 rounded-2xl neon-gradient mx-auto mb-4 flex items-center justify-center">
           <Lock className="w-8 h-8 text-primary-foreground" />
         </div>
-        <h2 className="text-xl font-bold text-foreground">{displayTitle}</h2>
+        <h2 className="text-xl font-bold text-foreground" aria-live="polite">{displayTitle}</h2>
         <p className="text-sm text-muted-foreground mt-1">
           {mode === 'set' ? 'Create a 4-digit security PIN' : 'Enter your 4-digit PIN to continue'}
         </p>
@@ -74,9 +74,9 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
 
       {/* PIN dots */}
       <motion.div animate={shake ? { x: [0, -10, 10, -10, 10, 0] } : {}} transition={{ duration: 0.4 }}
-        className="flex gap-4 mb-8">
+        className="flex gap-4 mb-8" role="status" aria-live="polite" aria-label={`${pin.length} of ${maxLength} digits entered`}>
         {Array.from({ length: maxLength }).map((_, i) => (
-          <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${
+          <div key={i} aria-hidden="true" className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${/
             i < pin.length
               ? 'bg-primary border-primary shadow-lg shadow-primary/30'
               : 'border-muted-foreground/30'
@@ -87,15 +87,16 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
       <AnimatePresence>
         {error && (
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-destructive text-xs mb-4">{error}</motion.p>
+            className="text-destructive text-xs mb-4" role="alert" aria-live="polite">{error}</motion.p>
         )}
       </AnimatePresence>
 
       {/* Keypad */}
-      <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
+      <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]" role="group" aria-label="PiN keypad">
         {keys.map((key, i) => (
           <button key={i} onClick={() => handleKey(key)} disabled={key === ''}
-            className={`h-16 rounded-2xl text-xl font-semibold transition-all active:scale-90 ${
+            aria-label={key === 'del' ? 'Delete' : key === '' ? undefined : undefined}
+            className={`h-16 rounded-2xl text-xl font-semibold transition-all active:scale-90 ${/
               key === '' ? 'invisible' :
               key === 'del' ? 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' :
               'text-foreground hover:bg-secondary/50 glass-card'
