@@ -4,7 +4,7 @@ import { Copy, Download, LogOut, Key, Shield, ChevronRight, Wallet, Loader2, Loc
 import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
 import { toast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import PinLock from './PinLock';
 
 const ProfileScreen = () => {
@@ -184,11 +184,14 @@ const ProfileScreen = () => {
         <DialogContent className="glass-card border-border/50 max-w-sm mx-auto">
           <DialogHeader>
             <DialogTitle className="text-foreground">Import Wallet</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Enter your Stellar secret key to restore an existing wallet.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Secret Key</label>
-              <input value={importKey} onChange={(e) => setImportKey(e.target.value)} placeholder="S..."
+              <label htmlFor="import-secret-key" className="text-xs font-medium text-muted-foreground mb-1.5 block">Secret Key</label>
+              <input id="import-secret-key" value={importKey} onChange={(e) => setImportKey(e.target.value)} placeholder="S..."
                 className="w-full bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono" />
               <p className="text-[10px] text-muted-foreground mt-1">Your secret key starts with 'S' and is 56 characters long</p>
             </div>

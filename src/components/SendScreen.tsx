@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ChevronDown, Loader2, CheckCircle2, Shield } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
@@ -107,18 +107,18 @@ const SendScreen = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="glass-card p-5 space-y-4">
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Recipient Address</label>
-          <input value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="G..."
+          <label htmlFor="send-recipient" className="text-xs font-medium text-muted-foreground mb-1.5 block">Recipient Address</label>
+          <input id="send-recipient" value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="G..."
             className="w-full bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono" />
         </div>
 
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Amount</label>
+          <label htmlFor="send-amount" className="text-xs font-medium text-muted-foreground mb-1.5 block">Amount</label>
           <div className="flex gap-2">
-            <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" type="number"
+            <input id="send-amount" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" type="number"
               className="flex-1 bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
             <button onClick={() => setShowAssets(!showAssets)}
-              className="glass-card px-4 py-3 flex items-center gap-2 text-sm font-medium text-foreground hover:bg-secondary/50 transition-colors min-w-[90px] justify-center">
+              className="glass-card px-4 py-3 flex items-center gap-2 text-sm font-medium text-foreground hover:bg-secondary/50 transition-colors min-w[90px] justify-center">
               {asset} <ChevronDown className="w-3 h-3" />
             </button>
           </div>
@@ -136,8 +136,8 @@ const SendScreen = () => {
         </div>
 
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Memo (optional)</label>
-          <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Add a note..." maxLength={28}
+          <label htmlFor="send-memo" className="text-xs font-medium text-muted-foreground mb-1.5 block">Memo (optional)</label>
+          <input id="send-memo" value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Add a note..." maxLength={28}
             className="w-full bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
         </div>
 
@@ -167,6 +167,9 @@ const SendScreen = () => {
             <DialogTitle className="text-foreground">
               {sent ? 'Transaction Sent! 🎉' : 'Confirm Transaction'}
             </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              {sent ? 'Your payment has been submitted to the Stellar network.' : 'Review the details below before confirming your payment.'}
+            </DialogDescription>
           </DialogHeader>
           {sent ? (
             <div className="flex flex-col items-center py-6">
@@ -183,7 +186,7 @@ const SendScreen = () => {
             <div className="space-y-3 py-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">To</span>
-                <span className="text-foreground font-mono text-xs truncate max-w-[180px]">{recipient}</span>
+                <span className="text-foreground font-mono text-xs truncate max-w[180px]">{recipient}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
@@ -209,7 +212,7 @@ const SendScreen = () => {
             <DialogFooter>
               <button onClick={confirmSend} disabled={sending}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}
