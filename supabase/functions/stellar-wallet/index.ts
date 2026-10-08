@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d";
 import { Keypair } from "npm:@stellar/stellar-sdk@13";
 
 const corsHeaders = {
@@ -21,11 +21,14 @@ Deno.serve(async (req) => {
       const secret = keypair.secret();
 
       // Fund on testnet via Friendbot
+      let funded = false;
       try {
         const fundRes = await fetch(
           `https://friendbot.stellar.org?addr=${publicKey}`
         );
-        if (!fundRes.ok) {
+        if (fundRes.ok) {
+          funded = true;
+        } else {
           console.warn("Friendbot funding failed, wallet created but unfunded");
         }
       } catch (e) {
@@ -37,7 +40,7 @@ Deno.serve(async (req) => {
           success: true,
           publicKey,
           secretKey: secret,
-          funded: true,
+          funded,
           network: "testnet",
         }),
         {

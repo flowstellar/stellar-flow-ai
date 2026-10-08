@@ -4,6 +4,7 @@ export interface WalletData {
   publicKey: string;
   secretKey: string;
   network: string;
+  funded?: boolean;
 }
 
 export interface BalanceData {
