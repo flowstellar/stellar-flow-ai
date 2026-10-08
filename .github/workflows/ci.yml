@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  guard-env:
+    name: Ensure .env is not tracked
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Fail if .env is tracked
+        run: |
+          if git ls-files --error-unmatch -exclude-standard - .env .env.* | grep -v '^$| grep -v '^.env.example$'; then
+            echo ".env must not be tracked by git"
+            exit 1
+          fi
+
+  verify:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare .env
+        run: cp .env.example .env
+      - name: Build
+        run: npm run build
