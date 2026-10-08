@@ -80,8 +80,8 @@ const DashboardContent = () => {
         {/* Top Bar */}
         <header className="h-14 lg:h-16 glass-card border-b border-border/30 rounded-none flex items-center justify-between px-4 lg:px-6 sticky top-0 z-40">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden text-muted-foreground hover:text-foreground">
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'} className="lg:hidden text-muted-foreground hover:text-foreground">
+              {mobileMenuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
             <div className="lg:hidden flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg neon-gradient flex items-center justify-center">
@@ -89,15 +89,15 @@ const DashboardContent = () => {
               </div>
               <span className="text-sm font-bold">Stellar<span className="neon-gradient-text">Flow</span></span>
             </div>
-            <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="hidden lg:block text-muted-foreground hover:text-foreground">
-              <Menu className="w-5 h-5" />
+            <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} aria-label="Toggle sidebar" className="hidden lg:block text-muted-foreground hover:text-foreground">
+              <Menu className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => toast({ title: 'No new notifications' })}
+            <button onClick={() => toast({ title: 'No new notifications' })} aria-label="Notifications"
               className="w-8 h-8 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative">
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" />
+              <Bell className="w-4 h-4" aria-hidden="true" />
+              <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" />
             </button>
             <div className="w-8 h-8 rounded-xl neon-gradient flex items-center justify-center text-primary-foreground text-xs font-bold cursor-pointer"
               onClick={() => setActiveTab('profile')}>

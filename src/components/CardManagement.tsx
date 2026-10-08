@@ -13,7 +13,7 @@ const CardManagement = () => {
   const toggleFreeze = () => {
     setFrozen(!frozen);
     toast({
-      title: frozen ? 'Card Unfrozen 🔓' : 'Card Frozen 🔒',
+      title: frozen ? 'Card Unfrozen 🔀' : 'Card Frozen 🔂',
       description: frozen ? 'Your card is now active' : 'Your card has been frozen',
     });
   };
@@ -37,16 +37,16 @@ const CardManagement = () => {
         <div className="absolute inset-0 p-6 flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-white/80 text-sm font-medium">StellarFlow</span>
-            <CreditCard className="w-6 h-6 text-white/60" />
+            <CreditCard className="w-6 h-6 text-white/60" aria-hidden="true" />
           </div>
           <div>
             <p className="text-white/60 text-xs mb-1">Card Number</p>
             <div className="flex items-center gap-2">
               <p className="text-white text-lg font-mono tracking-wider">
-                {showNumber ? cardNumber : '•••• •••• •••• 4829'}
+                {showNumber ? cardNumber : '•• • • • • • 4829'}
               </p>
-              <button onClick={copyNumber} className="text-white/40 hover:text-white/70 transition-colors">
-                <Copy className="w-3.5 h-3.5" />
+              <button onClick={copyNumber} aria-label="Copy card number" className="text-white/40 hover:text-white/70 transition-colors">
+                <Copy className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -64,7 +64,7 @@ const CardManagement = () => {
         {frozen && (
           <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
             <div className="glass-card px-4 py-2 rounded-xl flex items-center gap-2">
-              <Lock className="w-4 h-4 text-destructive" />
+              <Lock className="w-4 h-4 text-destructive" aria-hidden="true" />
               <span className="text-sm font-semibold text-destructive">Card Frozen</span>
             </div>
           </div>
@@ -76,16 +76,16 @@ const CardManagement = () => {
         className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
         <button onClick={toggleFreeze}
           className="glass-card p-3 flex flex-col items-center gap-1.5 hover:bg-secondary/50 transition-colors active:scale-95">
-          {frozen ? <Unlock className="w-5 h-5 text-primary" /> : <Lock className="w-5 h-5 text-destructive" />}
+          {frozen ? <Unlock className="w-5 h-5 text-primary" aria-hidden="true" /> : <Lock className="w-5 h-5 text-destructive" aria-hidden="true" />}
           <span className="text-[10px] font-medium text-foreground">{frozen ? 'Unfreeze' : 'Freeze'}</span>
         </button>
         <button onClick={() => setShowNumber(!showNumber)}
           className="glass-card p-3 flex flex-col items-center gap-1.5 hover:bg-secondary/50 transition-colors active:scale-95">
-          {showNumber ? <EyeOff className="w-5 h-5 text-accent" /> : <Eye className="w-5 h-5 text-accent" />}
+          {showNumber ? <EyeOff className="w-5 h-5 text-accent" aria-hidden="true" /> : <Eye className="w-5 h-5 text-accent" aria-hidden="true" />}
           <span className="text-[10px] font-medium text-foreground">{showNumber ? 'Hide' : 'Show'}</span>
         </button>
         <button className="glass-card p-3 flex flex-col items-center gap-1.5 hover:bg-secondary/50 transition-colors active:scale-95">
-          <ShieldCheck className="w-5 h-5 text-primary" />
+          <ShieldCheck className="w-5 h-5 text-primary" aria-hidden="true" />
           <span className="text-[10px] font-medium text-foreground">Security</span>
         </button>
       </motion.div>

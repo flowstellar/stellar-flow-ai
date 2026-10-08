@@ -25,7 +25,7 @@ const DashboardSidebar = ({ activeTab, onTabChange, collapsed }: DashboardSideba
       {/* Logo */}
       <div className="h-16 flex items-center px-4 border-b border-border/30">
         <div className="w-8 h-8 rounded-xl neon-gradient flex items-center justify-center shrink-0">
-          <Zap className="w-4 h-4 text-primary-foreground" />
+          <Zap className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
         </div>
         {!collapsed && <span className="ml-3 text-base font-bold">Stellar<span className="neon-gradient-text">Flow</span></span>}
       </div>
@@ -35,13 +35,13 @@ const DashboardSidebar = ({ activeTab, onTabChange, collapsed }: DashboardSideba
         {MENU_ITEMS.map(item => {
           const isActive = activeTab === item.id;
           return (
-            <button key={item.id} onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            <button key={item.id} onClick={() => onTabChange(item.id)} aria-label={item.label}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${/
                 isActive
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
               }`}>
-              <item.icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-primary' : ''}`} />
+              <item.icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-primary' : ''}`} aria-hidden="true" />
               {!collapsed && <span>{item.label}</span>}
               {isActive && !collapsed && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
             </button>
