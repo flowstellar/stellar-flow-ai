@@ -1,4 +1,4 @@
-import { Home, Send, Compass, Bot, User, Clock, Users, CreditCard } from 'lucide-react';
+import { Home, Send, Bot, User, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export type Tab = 'home' | 'send' | 'explore' | 'ai' | 'profile' | 'activity' | 'contacts' | 'card';
@@ -8,13 +8,15 @@ interface BottomNavProps {
   onTabChange: (tab: Tab) => void;
 }
 
-const tabs = [
+export const tabs = [
   { id: 'home' as Tab, icon: Home, label: 'Home' },
   { id: 'activity' as Tab, icon: Clock, label: 'Activity' },
   { id: 'send' as Tab, icon: Send, label: 'Send' },
   { id: 'ai' as Tab, icon: Bot, label: 'AI' },
   { id: 'profile' as Tab, icon: User, label: 'Profile' },
 ];
+
+export const TAB_IDS: Tab[] = ['home', 'activity', 'send', 'ai', 'profile'];
 
 const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   return (
@@ -23,7 +25,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
-            <button key={tab.id} onClick={() => onTabChange(tab.id)}
+            <button key={tab.id} onClick={() => onTabChange(tab.id)} aria-label={tab.label}
               className="relative flex flex-col items-center gap-0.5 px-3 py-2 transition-colors">
               {isActive && (
                 <motion.div layoutId="activeTab"
@@ -37,7 +39,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
               ) : (
                 <tab.icon className={`w-5 h-5 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
               )}
-              <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+              <span data-testid={`tab-label-${tab.id}`} className={`text-[10px] font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                 {tab.label}
               </span>
             </button>
