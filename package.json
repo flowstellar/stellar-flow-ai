@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "stellar-flow-ai",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "StellarFlow is an AI-powered Stellar wallet for sending, receiving, and managing digital assets.",
   "type": "module",
   "scripts": {
     "dev": "vite",
