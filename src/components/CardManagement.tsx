@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 const CardManagement = () => {
   const [frozen, setFrozen] = useState(false);
   const [showNumber, setShowNumber] = useState(false);
+  const [securityOpen, setSecurityOpen] = useState(false);
 
   const cardNumber = '4829 3710 5582 4829';
   const cvv = '847';
@@ -19,6 +20,14 @@ const CardManagement = () => {
   };
 
   const copyNumber = () => {
+    if (!showNumber) {
+      toast({
+        title: 'Number hidden',
+        description: 'Reveal the card number before copying',
+        variant: 'destructive',
+      });
+      return;
+    }
     navigator.clipboard.writeText(cardNumber.replace(/\s/g, ''));
     toast({ title: 'Copied!', description: 'Card number copied' });
   };
@@ -43,9 +52,9 @@ const CardManagement = () => {
             <p className="text-white/60 text-xs mb-1">Card Number</p>
             <div className="flex items-center gap-2">
               <p className="text-white text-lg font-mono tracking-wider">
-                {showNumber ? cardNumber : '•••• •••• •••• 4829'}
+                {showNumber ? cardNumber : '••• ••• ••• 4829'}
               </p>
-              <button onClick={copyNumber} className="text-white/40 hover:text-white/70 transition-colors">
+              <button onClick={copyNumber} aria-label="Copy card number" className="text-white/40 hover:text-white/70 transition-colors">
                 <Copy className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -84,17 +93,44 @@ const CardManagement = () => {
           {showNumber ? <EyeOff className="w-5 h-5 text-accent" /> : <Eye className="w-5 h-5 text-accent" />}
           <span className="text-[10px] font-medium text-foreground">{showNumber ? 'Hide' : 'Show'}</span>
         </button>
-        <button className="glass-card p-3 flex flex-col items-center gap-1.5 hover:bg-secondary/50 transition-colors active:scale-95">
+        <button onClick={() => setSecurityOpen(!securityOpen)}
+          aria-expanded={securityOpen}
+          className="glass-card p-3 flex flex-col items-center gap-1.5 hover:bg-secondary/50 transition-colors active:scale-95">
           <ShieldCheck className="w-5 h-5 text-primary" />
           <span className="text-[10px] font-medium text-foreground">Security</span>
         </button>
       </motion.div>
 
+      {securityOpen && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-4 space-3 max-w-sm mx-auto">
+          <h3 className="text-sm font-semibold text-foreground">Security Settings</h3>
+          <div className="space-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">CVV</span>
+              <span className="font-medium text-foreground">{showNumber ? cvv : '‬‬‬'}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Contactless Payments</span>
+              <span className="font-medium text-primary">Enabled</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Online Payments</span>
+              <span className="font-medium text-primary">Enabled</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">International Use</span>
+              <span className="font-medium text-foreground">Disabled</span>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Card Details */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-        className="glass-card p-4 space-y-3">
+        className="glass-card p-4 space-3">
         <h3 className="text-sm font-semibold text-foreground">Card Details</h3>
-        <div className="space-y-2">
+        <div className="space-2">
           {[
             { label: 'Card Type', value: 'Virtual Debit' },
             { label: 'Network', value: 'Stellar Network' },
@@ -112,9 +148,9 @@ const CardManagement = () => {
 
       {/* Recent Card Transactions */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="glass-card p-4 space-y-3">
+        className="glass-card p-4 space-3">
         <h3 className="text-sm font-semibold text-foreground">Card Transactions</h3>
-        <div className="space-y-2">
+        <div className="space-2">
           {[
             { merchant: 'Amazon', amount: '-$42.50', date: 'Today' },
             { merchant: 'Spotify', amount: '-$9.99', date: 'Yesterday' },
