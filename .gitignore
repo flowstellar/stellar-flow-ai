@@ -17,11 +17,16 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
+*suo
 *.ntvs*
-*.njsproj
+*.jsproj
 *.sln
 *.sw?
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+
+# Environment variables
+.env
+.env.*
+!.env.example
