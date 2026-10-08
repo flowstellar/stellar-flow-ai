@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
-Deno.serve(async (req) => {
+export const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -79,4 +79,8 @@ Deno.serve(async (req) => {
       }
     );
   }
-});
+};
+
+if (import.meta.main) {
+  Deno.serve(handler);
+}
