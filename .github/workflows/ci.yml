@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  functions:
+    name: functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: "v1.46.0"
+      - name: Type check
+        run: deno check stellar-send/index.ts
+      - name: Test
+        run: deno test --allow-net --allow-env --allow-read stellar-send/
+      - name: Lint
+        run: deno lint stellar-send/

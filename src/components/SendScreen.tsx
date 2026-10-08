@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ChevronDown, Loader2, CheckCircle2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -148,7 +148,7 @@ const SendScreen = () => {
         </button>
 
         {isPinSet && (
-          <p className="text-[10px] text-muted-foreground text-center">🔒 PIN verification required before sending</p>
+          <p className="text-[10px] text-muted-foreground text-center">🔂 PIN verification required before sending</p>
         )}
       </motion.div>
 
@@ -176,43 +176,45 @@ const SendScreen = () => {
               <p className="text-sm text-foreground font-semibold mt-3">You sent money across borders instantly!</p>
               <p className="text-xs text-muted-foreground mt-1">No hidden fees. Powered by Stellar.</p>
               {txHash && (
-                <p className="text-[10px] text-muted-foreground mt-2 font-mono break-all px-4 text-center">{txHash}</p>
+                <p className="text-[10px] text-muted-foreground mt-2 font-mono break-all px-4 text-center">{txHash.slice(0, 16)}...</p>
               )}
             </div>
           ) : (
-            <div className="space-y-3 py-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">To</span>
-                <span className="text-foreground font-mono text-xs truncate max-w-[180px]">{recipient}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Amount</span>
-                <span className="text-foreground font-semibold">{amount} {asset}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Network</span>
-                <span className="text-primary text-xs">Stellar Testnet</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Fee</span>
-                <span className="text-primary text-xs">~0.00001 XLM</span>
-              </div>
-              {memo && (
+            <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Memo</span>
-                  <span className="text-foreground text-xs">{memo}</span>
+                  <span className="text-muted-foreground">To</span>
+                  <span className="text-foreground font-mono text-xs">{recipient.slice(0, 8)}...{recipient.slice(-4)}</span>
                 </div>
-              )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amount</span>
+                  <span className="text-foreground font-semibold">{amount} {asset}</span>
+                </div>
+                {memo && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Memo</span>
+                    <span className="text-foreground">{memo}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-          {!sent && (
-            <DialogFooter>
+          <DialogFooter>
+            {!sent && (
               <button onClick={confirmSend} disabled={sending}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Sending...
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpRight className="w-4 h-4" /> Confirm Send
+                  </>
+                )}
               </button>
-            </DialogFooter>
-          )}
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
