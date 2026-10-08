@@ -50,3 +50,5 @@ export const usePin = () => {
   if (!ctx) throw new Error('usePin must be used within PinProvider');
   return ctx;
 };
+
+export { PIN_KEY };
