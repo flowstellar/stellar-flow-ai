@@ -33,18 +33,21 @@ Deno.serve(async (req) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       return new Response(
-        JSON.stringify({ success: false, error: "Amount must be a positive number" }),
+        JSON.stringify({
+          success: false,
+          error: "Amount must be a positive number",
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -58,7 +61,7 @@ Deno.serve(async (req) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -70,17 +73,17 @@ Deno.serve(async (req) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     // Load source account
     const accountRes = await fetch(
-      `${HORIZON_URL}/accounts/${sourceKeypair.publicKey()}`
+      `${HORIZON_URL}/accounts/${sourceKeypair.publicKey()}`,
     );
     if (!accountRes.ok) {
       throw new Error(
-        `Failed to load source account [${accountRes.status}]: ${await accountRes.text()}`
+        `Failed to load source account [${accountRes.status}]: ${await accountRes.text()}`,
       );
     }
     const sourceAccount = await accountRes.json();
@@ -111,14 +114,14 @@ Deno.serve(async (req) => {
           destination,
           asset: Asset.native(),
           amount: amountNum.toFixed(7),
-        })
+        }),
       );
     } else {
       builder = builder.addOperation(
         Operation.createAccount({
           destination,
           startingBalance: amountNum.toFixed(7),
-        })
+        }),
       );
     }
 
@@ -142,7 +145,7 @@ Deno.serve(async (req) => {
     if (!submitRes.ok) {
       const extras = submitData.extras?.result_codes;
       throw new Error(
-        `Transaction failed: ${JSON.stringify(extras || submitData.detail || submitData.title)}`
+        `Transaction failed: ${JSON.stringify(extras || submitData.detail || submitData.title)}`,
       );
     }
 
@@ -156,7 +159,7 @@ Deno.serve(async (req) => {
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -166,7 +169,7 @@ Deno.serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });

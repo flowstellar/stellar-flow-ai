@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       // Fund on testnet via Friendbot
       try {
         const fundRes = await fetch(
-          `https://friendbot.stellar.org?addr=${publicKey}`
+          `https://friendbot.stellar.org?addr=${publicKey}`,
         );
         if (!fundRes.ok) {
           console.warn("Friendbot funding failed, wallet created but unfunded");
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
           {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+          },
         );
       } catch {
         return new Response(
@@ -76,26 +76,26 @@ Deno.serve(async (req) => {
           {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+          },
         );
       }
     }
 
     return new Response(
-      JSON.stringify({ success: false, error: "Invalid action. Use 'create' or 'import'" }),
+      JSON.stringify({
+        success: false,
+        error: "Invalid action. Use 'create' or 'import'",
+      }),
       {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ success: false, error: message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ success: false, error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

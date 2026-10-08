@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "lint": "deno lint supabase/functions",
+    "fmt": "deno fmt supabase/functions",
+    "fmt:check": "deno fmt --check supabase/functions"
+  },
+  "lint": {
+    "include": ["supabase/functions/"]
+  },
+  "fmt": {
+    "include": ["supabase/functions/"]
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "dom"]
+  }
+}
