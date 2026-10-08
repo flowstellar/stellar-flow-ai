@@ -62,6 +62,9 @@ const ProfileScreen = () => {
     return <PinLock mode="set" onSuccess={handlePinSet} onCancel={() => setShowSetPin(false)} />;
   }
 
+  const rateUnavailable = balance?.rateUnavailable === true || !balance?.usdValue;
+  const usdValue = balance?.usdValue ?? null;
+
   return (
     <div className="px-4 pb-28 pt-6 space-y-5">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
@@ -98,6 +101,16 @@ const ProfileScreen = () => {
               <div className="mt-3 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Balance</span>
                 <span className="text-foreground font-semibold">{balance.xlmBalance} XLM</span>
+              </div>
+            )}
+            {balance && (
+              <div className="mt-1 flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">USD Value</span>
+                {rateUnavailable ? (
+                  <span className="text-destructive font-medium">Rate unavailable</span>
+                ) : (
+                  <span className="text-foreground font-medium">≈ {usdValue}</span>
+                )}
               </div>
             )}
           </div>
@@ -180,8 +193,8 @@ const ProfileScreen = () => {
       </div>
 
       {/* Import Modal */}
-      <Dialog open={showImport} onOpenChange={setShowImport}>
-        <DialogContent className="glass-card border-border/50 max-w-sm mx-auto">
+      <Dialog open={showImport} onopenChange={setShowImport}>
+        <DialogContent className="glass-card border-border/5 max-w-sm mx-auto">
           <DialogHeader>
             <DialogTitle className="text-foreground">Import Wallet</DialogTitle>
           </DialogHeader>
@@ -194,7 +207,7 @@ const ProfileScreen = () => {
             </div>
             <button onClick={handleImport} disabled={loading}
               className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Importing...</> : 'Import Wallet'}
+              {loading ? <<><Loader2 className="w-4 h-4 animate-spin" /> Importing...</> : 'Import Wallet'}
             </button>
           </div>
         </DialogContent>
