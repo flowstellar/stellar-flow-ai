@@ -9,17 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd1f0c19b4eb39c19c19c19c19c19c19c19c19
     - name: Setup Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@1e60e319c19c19c19c19c19c19c19c19c19c19
       with:
         node-version: 20
         cache: npm
     - name: Install dependencies
       run: npm ci
-    - name: Run tests
-      run: npm run test
-    name: verify
+    - name: Lint
+      run: npm run lint
+    - name: Build
+      run: npm run build
+    name: Verify
   functions:
     name: Edge Functions Tests
     runs-on: ubuntu-latest
@@ -33,3 +35,7 @@ jobs:
     - name: Run function tests
       working-directory: supabase/functions/stellar-balance
       run: deno test
+on push:
+  branches:
+  - main
+pull_request: null
