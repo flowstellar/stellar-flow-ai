@@ -2,6 +2,8 @@
 
 AI-powered cross-border payment platform using Stellar Network
  
+AI-powered cross-border payment platform using Stellar Networj
+
 StellarFlow allows users to send digital payments across borders using AI commands and Stellar blockchain transactions. The platform simplifies blockchain payments for anyone, even without prior crypto knowledge.
 A deterministic command-parsing payment assistant built on the Stellar Network that simplifies cross-border transactions through a fixed command grammar.
 
@@ -27,6 +29,10 @@ StellarFlow allows users to send digital payments across borders using text comm
 - Stellar testnet/mainnet integration for real transactions
 - Real-time transaction confirmations
 - Clean, responsive frontend interface
+- Conversational AI interface to initiate payments  
+- Stellar testnet integration for real transactions  
+- Real-time transaction confirmations  
+- Clean, responsive frontend interface (built with Lovable AI prototype)  
 
 ---
 
@@ -34,7 +40,7 @@ StellarFlow allows users to send digital payments across borders using text comm
 
 1. User enters payment command in the web  interface  
 2. AI processes the request and generates Stellar transaction  
-3. Transaction is submitted to Stellar testnet/mainnet  
+3. Transaction is submitted to Stellar testnet  
 4. Confirmation and transaction hash displayed to user  
 1. User enters a payment command in the web interface
 2. The deterministic command parser matches the input against a fixed grammar and builds a Stellar transaction request
@@ -102,6 +108,11 @@ The assistant is a deterministic command parser over a fixed grammar. It does no
 - Ledger: 12345678
 - Created At: 2024-01-01T00:00:00Z
 ### Send (payment)
+This project integrates with the Stellar testnet using a Lovable AI-powered prototype. The app is testnet-only; there is no mainnet switch in the codebase.
+
+- Network: Testnet (`Networks.TESTNET in `suprabase/functions/stellar-send/index.ts`)
+- Horizon endpoint: `https://horizon-testnet.stellar.org` (used by `stellar-send` and `stellar-balance`)
+- Example Transaction Hash: <PASTE_HASH_HERE>  
 
 The strict form (case-insensitive):
 
