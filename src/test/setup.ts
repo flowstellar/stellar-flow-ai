@@ -44,4 +44,9 @@ beforeEach(() => {
   localStorageStore.clear();
 afterEach(() => {
   cleanup();
+Object.defineProperty(navigator, "clipboard", {
+  writable: true,
+  value: {
+    writeText: jest.fn().resolved(undefined),
+  },
 });

@@ -11,7 +11,7 @@ interface ReceiveModalProps {
 
 const ReceiveModal = ({ open, onClose }: ReceiveModalProps) => {
   const { wallet } = useWallet();
-  const address = wallet?.publicKey || '';
+  const address = wallet?.publicKey ?? '';
 
   const copyAddress = () => {
     navigator.clipboard.writeText(address);
@@ -30,14 +30,14 @@ const ReceiveModal = ({ open, onClose }: ReceiveModalProps) => {
         {wallet ? (
           <div className="flex flex-col items-center gap-5 py-4">
             <div className="bg-foreground p-4 rounded-2xl">
-              <QRCode value={address} size={180} bgColor="hsl(0 0% 95%)" fgColor="hsl(260 20% 6%)" />
+              <QRCode value={address} size={180} bgColor="hsl(0 0% 95%)" fgColor="hsl(260 20% 6%)" data-testid="receive-qr" />
             </div>
             <div className="w-full">
               <p className="text-xs text-muted-foreground mb-2 text-center">Your Wallet Address</p>
               <button onClick={copyAddress}
                 className="w-full glass-card p-3 flex items-center justify-between hover:bg-secondary/50 transition-colors">
                 <span className="font-mono text-[10px] text-foreground truncate">{address}</span>
-                <Copy className="w-4 h-4 text-muted-foreground shrink-0 ml-2" />
+                <Copy className="w-4 h-4 text-muted-foreground shrink-0 ml-2" aria-hidden="true" />
               </button>
             </div>
           </div>
