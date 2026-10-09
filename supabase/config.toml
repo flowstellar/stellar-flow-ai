@@ -17,3 +17,8 @@ verify_jwt = true
 
 [functions.stellar-balance]
 verify_jwt = true
+# Supabase local dev configuration.
+# The project_id is read from the environment so that no live
+# project reference is committed to git. Set SUPABASE_PROJECT_ID in your
+# shell or .env before running `supabase start`.
+project_id = "env(SUPABASE_PROJECT_ID)"
