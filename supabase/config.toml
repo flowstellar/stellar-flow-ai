@@ -1,1 +1,9 @@
+# Supabase project configuration for the stellar edge functions.
+#
+# The `project_id` below is the Supabase project that hosts the
+# `stellar-send`, `stellar-balance` and `stellar-wallet` functions.
+# Contributors forking this repo MUST replace it with the project id
+# of their own Supabase project (found in the dashboard under
+# Project Settings -> General), otherwise `supabase functions
+.# deploy` will target the wrong project.
 project_id = "wqdfsqabbzcgtrfbrwtx"
