@@ -7,3 +7,13 @@
 # Project Settings -> General), otherwise `supabase functions
 .# deploy` will target the wrong project.
 project_id = "wqdfsqabbzcgtrfbrwtx"
+project_id = "wqdfsqabbzcgtrfbrwtx"
+
+[functions.stellar-send]
+verify_jwt = true
+
+[functions.stellar-wallet]
+verify_jwt = true
+
+[functions.stellar-balance]
+verify_jwt = true

@@ -2,12 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.dts";
 import { Keypair } from "npm:@stellar/stellar-sdk13";
 import "jsr:@supabase/functions-js/edge-runtime.d";
 import { Keypair } from "npm:@stellar/stellar-sdk@13";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { corsHeaders, requireAuth, isAuthResult } from "../_shared/auth.ts";
 
 export const handler = async (req: Request): Promise<Response> => {
 interface WalletRequest {
@@ -22,6 +17,12 @@ Deno.serve(async (req: Request) => {
 
   try {
     const { action, secretKey } = (await req.json()) as WalletRequest;
+    const auth = await requireAuth(req);
+    if (!isAuthResult(auth)) {
+      return auth;
+    }
+
+    const { action, secretKey } = await req.json();
 
     if (action === "create") {
       const keypair = Keypair.random();
