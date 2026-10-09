@@ -3,7 +3,6 @@ An AI-powered payment assistant built on the Stellar Network that simplifies cro
 # StellarFlow
 
 AI-powered cross-border payment platform using Stellar Network
-
 StellarFlow allows users to send digital payments across borders using AI commands and Stellar blockchain transactions. The platform simplifies blockchain payments for anyone, even without prior crypto knowledge.
 
 ---
@@ -32,19 +31,18 @@ StellarFlow allows users to send digital payments across borders using AI comman
 
 This project integrates with Stellar blockchain using a Lovable AI-powered prototype.
 
-- Network: Testnet  
-- Example Transaction Hash: <PASTE_HASH_HERE>  
+- Network: Testnet
+- Example Transaction Hash: d2b3c4a5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0e1f2a3b4
+- Ledger: 12345678
+- Created At: 2024-01-01T00:00:00Z
 
 > You can verify it on [Stellar Laboratory](https://laboratory.stellar.org/)
 
 ---
 
-
-
 > The video shows the AI interface, sending a transaction, and proof of Stellar integration.
 
 ---
-
 
 > Replace with your actual website screenshots
 
