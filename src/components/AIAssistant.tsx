@@ -16,6 +16,7 @@ interface TxPending {
   amount: string;
   asset: string;
   memo?: string;
+  idempotencyKey?: string;
   status?: 'awaiting' | 'pin' | 'building' | 'signing' | 'submitting' | 'confirming';
 }
 
@@ -58,6 +59,11 @@ const formatFee = (fee?: string | number): string | null => {
   if (!Number.isFinite(stroops)) return null;
   const xlm = stroops / STROOPS_PER_XLM;
   return `${xlm.toFixed(7).replace(/0+$/, '').replace(/\.$/, '')} XLM`;
+const generateIdempotencyKey = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
 const loadTxHistory = (): TxHistoryEntry[] => {
@@ -167,6 +173,8 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     // Send command — "send 5 xlm to GXXX..."
     const sendMatch = text.match(/send\s+(\d+\.?\d*)\s*(xlm|usdc|eurc)?\s*(?:to\s+)?(G[A-Z0-9]{50,})/i);
     if (sendMatch && isValidStellarAddress(sendMatch[4])) {
+    const sendMatch = text.match(/send\s+(\d+.?\d*)\s+(xlm|usdc|eurc)?\s*(?:to\s+)?(G[A-Z0-9]{50,})/i);
+    if (sendMatch) {
       const [, amount, rawAsset, destination] = sendMatch;
       const asset = (rawAsset || 'XLM').toUpperCase();
       const amountNum = parseFloat(amount);
@@ -176,19 +184,20 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
         };
       }
       return {
-        content: `🔄 **Transaction Request**\n\nI'll send **${amount} ${asset}** to:\n\`${destination.slice(0, 8)}...${destination.slice(-6)}\``,
-        txPending: { destination, amount, asset, status: 'awaiting' },
+        content: `🔄 **Transaction Request**\n\nI'll send **${amount} ${asset}** to:\n\`${destination.slice(0, 8)}...${destination.slice(-6)}\`,
+        txPending: { destination, amount, asset, idempotencyKey: generateIdempotencyKey(), status: 'awaiting' },
       };
     }
 
     // Loose send without valid address
     const looseSend = lower.match(/^send\s+(\d+\.?\d*)\s*(xlm|usdc|eurc)?\s+to\s+(.+)/i);
+    const looseSend = lower.match(/send\s+(\d+.?\d*)\s*(xlm|usdc|eurc)?\s*(to\s+)?(.+)?/i);
     if (looseSend) {
       const amount = looseSend[1];
       const asset = (looseSend[2] || 'XLM').toUpperCase();
       const who = looseSend[3]?.trim() || 'someone';
       return {
-        content: `I'd love to send **${amount} ${asset}** to **${who}**, but I need a valid Stellar address (starts with G, 56 characters).\n\nTry: *\"Send ${amount} ${asset} to GABC...XYZ\"*`,
+        content: `I’d love to send **${amount} ${asset}** to **${who}**, but I need a valid Stellar address (starts with G, 56 characters).\n\nTry: *\"Send ${amount} ${asset} to GABC...XYZ\*R`,
       };
     }
 
@@ -196,10 +205,10 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     if (lower.includes('history') || (lower.includes('transaction') && !lower.includes('send'))) {
       const history = loadTxHistory();
       if (history.length === 0) {
-        return { content: "📭 No transactions yet. Send your first payment and it'll show up here!\n\nTry: *\"Send 5 XLM to G...\"*" };
+        return { content: "📭 No transactions yet. Send your first payment and it'll show up here!\n\nTry: *\"Send 5 XLM to G...\"* " };
       }
       const lines = history.slice(0, 5).map((tx, i) =>
-        `${i + 1}. **${tx.amount} ${tx.asset}** → \`${tx.destination.slice(0, 6)}...${tx.destination.slice(-4)}\` ${tx.status === 'success' ? '✅' : '❌'}\n   ${new Date(tx.timestamp).toLocaleString()}`
+        `${i + 1}. **${tx.amount} ${tx.asset}** → \`${tx.destination.slice(0, 6)}...${tx.destination.slice(-4)}\` ${tx.status === 'success' ? '✅' : '⍋'}\n   ${new Date(tx.timestamp).toLocaleString()}`
       ).join('\n\n');
       return { content: `📜 **Recent Transactions** (${history.length} total)\n\n${lines}${history.length > 5 ? '\n\n_...and more_' : ''}` };
     }
@@ -279,7 +288,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     if (!msg?.txPending || !wallet) return;
 
     setActiveTxId(msgId);
-    const { destination, amount, asset, memo } = msg.txPending;
+    const { destination, amount, asset, memo, idempotencyKey } = msg.txPending;
 
     if (!isValidStellarAddress(destination)) {
       setMessages(prev => prev.map(m =>
@@ -319,6 +328,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
         destination,
         amount,
         memo,
+        idempotencyKey,
       });
 
       // Step 4: Confirming

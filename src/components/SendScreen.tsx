@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ChevronDown, Loader2, CheckCircle2, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -276,7 +276,7 @@ const SendScreen = () => {
                 <p className="text-xs text-muted-foreground mt-1">Network Fee: {formatStroopsToXlm(fee)} XLM</p>
               )}
               {txHash && (
-                <p className="text-[10px] text-muted-foreground mt-2 font-mono break-all px-4 text-center">{txHash}</p>
+                <p className="text-[10px] text-muted-foreground mt-2 font-mono break-all px-4 text-center">{txHash.slice(0, 16)}...</p>
               )}
             </div>
           ) : (
@@ -300,11 +300,23 @@ const SendScreen = () => {
                 <span className="text-muted-foreground text-xs">Fee determined at submission</span>
               </div>
               {memo && (
+            <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Memo</span>
-                  <span className="text-foreground text-xs">{memo}</span>
+                  <span className="text-muted-foreground">To</span>
+                  <span className="text-foreground font-mono text-xs">{recipient.slice(0, 8)}...{recipient.slice(-4)}</span>
                 </div>
-              )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amount</span>
+                  <span className="text-foreground font-semibold">{amount} {asset}</span>
+                </div>
+                {memo && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Memo</span>
+                    <span className="text-foreground">{memo}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
           {!sent && (
@@ -315,9 +327,22 @@ const SendScreen = () => {
                 {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
                 {sending ? <<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
                 {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+          <DialogFooter>
+            {!sent && (
+              <button onClick={confirmSend} disabled={sending}
+                className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+                {sending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Sending...
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpRight className="w-4 h-4" /> Confirm Send
+                  </>
+                )}
               </button>
-            </DialogFooter>
-          )}
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
