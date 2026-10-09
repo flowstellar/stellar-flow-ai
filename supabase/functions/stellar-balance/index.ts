@@ -8,6 +8,8 @@ const corsHeaders = {
 };
 import "jsr:@supabase/functions-js/edge-runtime.dts";
 import { corsHeaders, requireAuth, isAuthResult } from "../_shared/auth.ts";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
@@ -117,11 +119,12 @@ interface HorizonAccount {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handlePreflight(req);
   }
 
   const fetchImpl = deps.fetchImpl ?? fetch;
   const now = deps.now ?? (() => Date.now());
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const auth = await requireAuth(req);
