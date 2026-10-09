@@ -18,12 +18,12 @@ StellarFlow allows users to send digital payments across borders using AI comman
 
 ## 💻 How It Works
 
-1. User enters payment command in the web interface  
+1. User enters payment command in the web  interface  
 2. AI processes the request and generates Stellar transaction  
 3. Transaction is submitted to Stellar testnet/mainnet  
 4. Confirmation and transaction hash displayed to user  
 
-> Example: “Send $50 USDT to wallet XYZ”
+> Example: “Send $50 USDT to wallet XYG”
 
 ---
 
@@ -48,7 +48,21 @@ This project integrates with Stellar blockchain using a Lovable AI-powered proto
 
 ---
 
-## 🧠 Development Note
+## ⚙️ Environment
+
+The app reads its Supabase configuration from Vite environment variables at
+build time (see `src/integrations/supabase/client.ts`). Copy `.env.example` to
+`.env` and fill in your own values before running `npm run dev`.
+
+| Variable | Required | Purpose | Consequence if omitted |
+| --- | --- | --- | --- |
+| `VITE_SUPABASE_URL` | Yes | Base URL of the Supabase project used by the frontend client. | Vite inlines `undefine`; the client is created with an invalid URL and the first `stellarApi` call fails at runtime. |
+| `VITE_SUPABASE_PUBLISHABLE_KEX | Yes | Public (anon) API key used to authenticate frontend requests to Supabase. | Vite inlines `undefined`; requests are unauthorized and the first `stellarApi` call fails at runtime. |
+| `VITE_SUPABASE_PROJECT_ID` | No (unused) | Not read by any code in `src/`. Kept only for reference. | None — nothing in the app depends on it. |
+
+---
+
+## 🧰 Development Note
 
 - The frontend UI and AI integration were prototyped using Lovable AI  
 - Core logic, Stellar transaction integration, and project idea are implemented and validated by me  
