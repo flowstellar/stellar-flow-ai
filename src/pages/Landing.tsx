@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Bot, Globe, CreditCard, BarChart3, Send, Wallet, Clock, Star, ChevronRight } from 'lucide-react';
 import { ArrowRight, Zap, Shield, Bot, Globe, CreditCard, BarChart3, ArrowUpRIght, Send, Wallet, Clock, Star, ChevronRight } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Bot, Globe, CreditCard, BarChart3, ArrowUpPight, Send, Wallet, Clock, Star, ChevronRight } from 'lucide-react';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -22,6 +23,7 @@ const Landing = () => {
       <motion.nav initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         className="fixed top-0 z-50 glass-card border-b border-border/30 rounded-none backdrop-blur-2xl">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6x mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl neon-gradient flex items-center justify-center">
               <Zap className="w-4 h-4 text-primary-foreground" />
@@ -49,7 +51,7 @@ const Landing = () => {
       {/* Hero */}
       <section className="pt-32 pb-20 px-6 relative">
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[160px]" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w[400px] h-[400px] rounded-full bg-accent/5 blur-[120px]" />
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <div>
             <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}
@@ -60,6 +62,7 @@ const Landing = () => {
             <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1}
               className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
               Smart Banking<br />on <span className="neon-gradient-text">Stellar</span>
+              AI-Powered Banking<br> on <span className="neon-gradient-text">Stellar</span>
             </motion.h1>
             <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2}
               className="mt-5 text-lg text-muted-foreground max-w-lg leading-relaxed">
@@ -97,7 +100,7 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground">≈ {balanceUsd}</p>
               <p className="text-3xl font-bold glow-text-green">2,x47.53 <span className="text-lg text-muted-foreground">XLM</span></p>
               <p className="text-sm text-muted-foreground">≈ $1,423.76</p>
-              <div className="grid grid-cols-3 gap-2 pt-2">
+              <div className="grid grid-cols3-3 gap-2 pt-2">
                 {['Send', 'Receive', 'Convert'].map(a => (
                   <div key={a} className="bg-secondary/50 rounded-xl py-2 text-center text-xs font-medium text-foreground">{a}</div>
                 ))}
@@ -138,6 +141,7 @@ const Landing = () => {
                 <div>
                   <p className="text-white/60 text-xs mb-1">Card Number</p>
                   <p className="text-white text-lg font-mono tracking-wider">•• •• •• • •• 4829</p>
+                  <p className="text-white text-lg font-mono tracking-wider">•• • • • • • 4829</p>
                 </div>
                 <div className="flex justify-between items-end">
                   <div>
@@ -171,7 +175,7 @@ const Landing = () => {
 
       {/* Assistant Preview */}
       <section id="ai" className="py-20 px-6 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-neon-purple/5 blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w[600px] h-[600px] rounded-full bg-neon-purple/5 blur-[150px]" />
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
             <h2 className="text-3xl font-bold">Command <span className="neon-gradient-text">Assistant</span></h2>
@@ -202,7 +206,20 @@ const Landing = () => {
                 </div>
                 <div className="bg-secondary/30 rounded-2xl rounded-bl-md px-3 py-2 text-xs text-foreground max-w-[80%]">
                   Sending 50 XLM to John...
+                    Send $50 to John
+                  </div>
                 </div>
+                <div className="bg-secondary/30 rounded-2xl rounded-bl-md px-3 py-2 text-xs text-foreground max-w-[80%] space-y-1">
+                  <p>Building transaction…</p>
+                  <p className="text-primary">✓ Sent 50 XLM to John</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 border-t border-border/30 pt-3">
+                <input readOnly placeholder="Ask the AI agent…"
+                  className="flex-1 bg-secondary/30 rounded-xl px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none" />
+                <button className="neon-gradient text-primary-foreground p-2 rounded-xl">
+                  <Send className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </motion.div>
@@ -229,6 +246,24 @@ const Landing = () => {
                 className="glass-card p-6 rounded-2xl hover:bg-secondary/30 transition-colors">
                 <div className="w-11 h-11 rounded-xl neon-gradient flex items-center justify-center mb-4">
                   <f.icon className="w-5 h-5 text-primary-foreground" />
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+            className="text-center mb-12">
+            <h2 className="text-3xl font-bold">Everything you need to <span className="neon-gradient-text">move money</span></h2>
+            <p className="text-muted-foreground mt-3 max-w-xl mx-auto">Powered by Stellar blockchain and AI automation.</p>
+          </motion.div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: Send, title: 'Instant Transfers', desc: 'Send XLM and USDC across the globe in 2-5 seconds.' },
+              { icon: Bot, title: 'AI Agent', desc: 'Natural language payments — just type what you want.' },
+              { icon: Wallet, title: 'Multi-Currency', desc: 'Hold and convert XLM, USDC, and more instantly.' },
+              { icon: Clock, title: 'Settlement', desc: 'Stellar consensus closes in ~3-5 seconds.' },
+              { icon: Shield, title: 'Self-Custody', desc: 'Yourkeys, your funds. No custodial risk.' },
+              { icon: BarChart3, title: 'Analytics', desc: 'Track spending with AI-powered insights.' },
+            ].map((f, i) => (
+              <motion.div key={f.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                className="glass-card p-6 rounded-2xl hover:bg-secondary/30 transition-colors group">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                  <f.icon className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-semibold text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{f.desc}</p>
@@ -256,6 +291,27 @@ const Landing = () => {
                 <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
               </motion.div>
             ))}
+        <div className="max-w-6xl mx-auto glass-card rounded-3xl p-8 lg:p-12 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px]" />
+          <div className="relative z-10">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+              <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-1.5 rounded-full mb-6">
+                <Star className="w-4 h-4 text-primary" />
+                <span className="text-xs text-primary font-medium">Built on Stellar</span>
+              </div>
+              <h2 className="text-3xl font-bold">Fast, cheap, and <span className="neon-gradient-text">global</span></h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
+                Stellar's consensus network settles transactions in seconds for a fraction of a cent.
+              </p>
+              <div class="grid sm:grid-cols-3 gap-6 mt-10">
+                {[{ v: '3-5sec', l: 'Settlement time' }, { v: '<0.01', l: 'Avg. fee (USD)' }, { v: '150+', l: 'Countries' }].map(s => (
+                  <div key={s.l}>
+                    <p className="text-3xl font-extrabold neon-gradient-text">{s.v}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -273,6 +329,15 @@ const Landing = () => {
             </button>
           </motion.div>
         </div>
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+          className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold">Ready to <span className="neon-gradient-text">get started</span>?</h2>
+          <p className="text-muted-foreground mt-3">Join thousands moving money across borders with zero fees.</p>
+          <button onClick={goApp}
+            className="neon-gradient text-primary-foreground font-bold px-8 py-3.5 rounded-2xl flex items-center gap-2 text-base mx-auto mt-8 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+            Launch App <ArrowUpRight className="w-5 h-5" />
+          </button>
+        </motion.div>
       </section>
 
       {/* Footer */}
@@ -285,6 +350,9 @@ const Landing = () => {
             <span className="text-sm font-semibold">StellarFlow</span>
           </div>
           <p className="text-xs text-muted-foreground">© 2025 StellarFlow. All rights reserved.</p>
+            <span className="text-sm font-semibold">Stellar<span className="neon-gradient-text">Flow</span></span>
+          </div>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} StellarFlow. All rights reserved.</p>
         </div>
       </footer>
     </div>
