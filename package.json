@@ -101,5 +101,8 @@
     "prettier": "^3.3.6",
     "@vitest/coverage-v8": "^3.2.4"
   },
-  "description": "AI-powered Stellar non-custodial wallet with intelligent payment automation and Soroban interaction"
+  "description": "AI-powered Stellar non-custodial wallet with intelligent payment automation and Soroban interaction",
+  "engines": {
+    "node": ">=20.11.1 < 21"
+  }
 }
