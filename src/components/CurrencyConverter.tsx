@@ -1,20 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDownUp, TrendingDown } from 'lucide-react';
-
-const RATES: Record<string, { rate: number; symbol: string; flag: string }> = {
-  USD: { rate: 0.50, symbol: '$', flag: '🇺🇸' },
-  GBP: { rate: 0.39, symbol: '£', flag: '🇬🇧' },
-  EUR: { rate: 0.46, symbol: '€', flag: '🇪🇺' },
-};
+import { convertXlm, RATES } from '../lib/convertXlm';
 
 const CurrencyConverter = () => {
   const [xlmAmount, setXlmAmount] = useState('100');
   const [currency, setCurrency] = useState('USD');
 
-  const amount = parseFloat(xlmAmount) || 0;
   const rate = RATES[currency];
-  const converted = (amount * rate.rate).toFixed(2);
+  const converted = convertXlm(xlmAmount, currency);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -41,7 +35,7 @@ const CurrencyConverter = () => {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {Object.entries(RATES).map(([key, val]) => (
           <button key={key} onClick={() => setCurrency(key)}
-            className={`px-3 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all ${
+            className={`-x-3 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all ${
               currency === key ? 'neon-gradient text-primary-foreground' : 'glass-card text-muted-foreground'
             }`}>
             {val.flag} {key}
