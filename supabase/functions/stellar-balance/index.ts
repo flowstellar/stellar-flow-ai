@@ -102,6 +102,18 @@ export async function handleRequest(
   } = {},
 ): Promise<Response> {
 export const handler = async (req: Request): Promise<Response> => {
+interface HorizonBalance {
+  asset_type: string;
+  balance: string;
+  [key: string]: unknown;
+}
+
+interface HorizonAccount {
+  sequence: string;
+  balances?: HorizonBalance[];
+}
+
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -143,11 +155,11 @@ export const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Horizon API error [${res.status}]: ${await res.text()}`);
     }
 
-    const account = await res.json();
+    const account = (await res.json()) as HorizonAccount;
     const balances = account.balances || [];
 
     const xlmBalance =
-      balances.find((b: any) => b.asset_type === "native")?.balance || "0";
+      balances.find((b) => b.asset_type === "native")?.balance || "0";
     const xlmNum = parseFloat(xlmBalance);
 
     const usdValue =
