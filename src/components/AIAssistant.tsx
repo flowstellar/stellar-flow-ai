@@ -168,11 +168,11 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     }
 
     // Loose send without valid address
-    const looseSend = lower.match(/send\s+(\d+\.?\d*)\s*(xlm|usdc|eurc)?\s*(to\s+)?(.+)?/i);
+    const looseSend = lower.match(/^send\s+(\d+\.?\d*)\s*(xlm|usdc|eurc)?\s+to\s+(.+)/i);
     if (looseSend) {
       const amount = looseSend[1];
       const asset = (looseSend[2] || 'XLM').toUpperCase();
-      const who = looseSend[4]?.trim() || 'someone';
+      const who = looseSend[3]?.trim() || 'someone';
       return {
         content: `I'd love to send **${amount} ${asset}** to **${who}**, but I need a valid Stellar address (starts with G, 56 characters).\n\nTry: *\"Send ${amount} ${asset} to GABC...XYZ\"*`,
       };
