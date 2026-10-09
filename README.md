@@ -223,6 +223,7 @@ This project integrates with the Stellar blockchain.
 ---
 
 > The video shows the command interface, sending a transaction, and proof of Stellar integration.
+## 📸 Screenshots
 
 ---
 
