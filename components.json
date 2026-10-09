@@ -16,5 +16,6 @@
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
-  }
+  },
+  "note": "Toast implementation lives at @/hooks/use-toast. The shadcn generator would create src/components/ui/use-toast.ts as a re-export shim; it was deliberately removed to keep a single canonical import path. After running `npx shadcn add toast`, delete the generated src/components/ui/use-toast.ts shim and import from @/hooks/use-toast instead."
 }
