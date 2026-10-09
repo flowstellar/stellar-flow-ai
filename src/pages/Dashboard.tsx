@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Menu, X, Zap } from 'lucide-react';
 import BottomNav, { Tab } from '@/components/BottomNav';
@@ -42,7 +43,7 @@ const DashboardContent = () => {
     );
   }
 
-  const renderScreen = () => {
+  const renderScreen = (tab: Tab) => {
     switch (activeTab) {
       case 'home':
         return <HomeScreen onNavigate={(tab) => setActiveTab(tab)} />;
@@ -150,7 +151,7 @@ const DashboardContent = () => {
               <motion.div key={activeTab}
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}>
-                {renderScreen()}
+                {renderScreen(activeTab)}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -165,6 +166,7 @@ const DashboardContent = () => {
   );
 };
 
+export { DashboardContent };
 const Dashboard = () => {
   return (
     <WalletProvider>
