@@ -29,7 +29,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
               className="relative flex flex-col items-center gap-0.5 px-3 py-2 transition-colors">
               {isActive && (
                 <motion.div layoutId="activeTab"
-                  className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full neon-gradient"
+                  className="absolute -top-1 left-1/2-translate-x-1/2 w-8 h-1 rounded-full neon-gradient"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }} />
               )}
               {tab.id === 'send' ? (
