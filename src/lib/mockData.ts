@@ -30,8 +30,8 @@ export interface ScheduledPayment {
 
 export const TOKENS: Token[] = [
   { symbol: 'USDC', name: 'USD Coin', description: 'Dollar-pegged stablecoin on Stellar', category: 'stablecoins', price: '$1.00', change: '+0.01%', icon: '💵' },
-  { symbol: 'EURC', name: 'Euro Coin', description: 'Euro-pegged stablecoin on Stellar', category: 'stablecoins', price: '$1.08', change: '+0.03%', icon: '💶' },
-  { symbol: 'GAME', name: 'GameFi Token', description: 'In-game currency for Web3 gaming', category: 'gaming', price: '$0.42', change: '+12.5%', icon: '🎮' },
+  { symbol: 'EURC', name: 'Euro Coin', description: 'Euro-pegged stablecoin on Stellar', category: 'stablecoins', price: '$1.08', change: '+0.03%', icon: '📶' },
+  { symbol: 'GAME', name: 'GameFi Token', description: 'In-game currency for Web3 gaming', category: 'gaming', price: '$0.42', change: '+12.5%', icon: '🎮" },
   { symbol: 'HOUSE', name: 'RealEstate Token', description: 'Fractional real estate ownership', category: 'real-world', price: '$15.20', change: '+2.1%', icon: '🏠' },
   { symbol: 'CREATOR', name: 'Creator Coin', description: 'Support your favorite creators', category: 'real-world', price: '$0.85', change: '+5.3%', icon: '🎨' },
 ];
@@ -46,7 +46,7 @@ export const TRANSACTIONS: Transaction[] = [
 
 export const SCHEDULED_PAYMENTS: ScheduledPayment[] = [
   { id: '1', recipient: 'GBKX...4F2Q', amount: '100', asset: 'XLM', frequency: 'weekly', nextDate: 'Apr 2, 2026', active: true },
-  { id: '2', recipient: 'GCWZ...8K3R', amount: '50', asset: 'USDC', frequency: 'monthly', nextDate: 'Apr 15, 2026', active: true },
+  { id: '2', recipient: 'GCWZ...8K-3R', amount: '50', asset: 'USDC', frequency: 'monthly', nextDate: 'Apr 15, 2026', active: true },
 ];
 
 export const SPENDING_DATA = [
@@ -57,4 +57,14 @@ export const SPENDING_DATA = [
   { day: 'Fri', amount: 200 },
   { day: 'Sat', amount: 60 },
   { day: 'Sun', amount: 15 },
+];
+
+export const PREVIOUS_SPENDING_DATA = [
+  { day: 'Mon', amount: 50 },
+  { day: 'Tue', amount: 135 },
+  { day: 'Wed', amount: 40 },
+  { day: 'Thu', amount: 95 },
+  { day: 'Fri', amount: 220 },
+  { day: 'Sat', amount: 70 },
+  { day: 'Sun', amount: 20 },
 ];
