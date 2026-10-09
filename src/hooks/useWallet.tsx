@@ -16,16 +16,30 @@ const WalletContext = createContext<WalletContextType | null>(null);
 
 const WALLET_KEY = 'stellarflow_wallet';
 
-export const WalletProvider = ({ children }: { children: ReactNode }) => {
-  const [wallet, setWallet] = useState<WalletData | null>(() => {
+const loadStoredWallet = (): WalletData | null => {
+  try {
     const stored = localStorage.getItem(WALLET_KEY);
-    return stored ? JSON.parse(stored) : null;
-  });
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as WalletData;
+    if (!parsed || typeof parsed !== 'object' || !parsed.publicKey || !parsed.secretKey) {
+      localStorage.removeItem(WALLET_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    localStorage.removeItem(WALLET_KEY);
+    return null;
+  }
+};
+
+export const WalletProvider = ({ children }: { children: ReactNode }) => {
+  const [wallet, setWallet] = useState<WalletData | null>(loadStoredWallet);
   const [balance, setBalance] = useState<BalanceData | null>(null);
   const [loading, setLoading] = useState(false);
   const [balanceLoading, setBalanceLoading] = useState(false);
 
   const saveWallet = (w : WalletData) => {
+  const saveWallet = (w WalletData) => {
     setWallet(w);
     localStorage.setItem(WALLET_KEY, JSON.stringify(w));
   };
