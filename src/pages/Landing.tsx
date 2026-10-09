@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Shield, Bot, Globe, CreditCard, BarChart3, ArrowUpRight, Send, Wallet, Clock, Star, ChevronRight } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Bot, Globe, CreditCard, BarChart3, Send, Wallet, Clock, Star, ChevronRight } from 'lucide-react';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },

@@ -13,7 +13,7 @@ const CardManagement = () => {
   const toggleFreeze = () => {
     setFrozen(!frozen);
     toast({
-      title: frozen ? 'Card Unfrozen 🔓' : 'Card Frozen 🔒',
+      title: frozen ? 'Card Unfrozen 🔀' : 'Card Frozen 🔂',
       description: frozen ? 'Your card is now active' : 'Your card has been frozen',
     });
   };
@@ -33,7 +33,7 @@ const CardManagement = () => {
       {/* Virtual Card */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
         className={`w-full max-w-sm rounded-3xl relative overflow-hidden mx-auto transition-all ${frozen ? 'opacity-60 grayscale' : ''}`}
-        style={{ aspectRatio: '1.6/1', background: 'linear-gradient(135deg, hsl(270 80% 30%), hsl(210 100% 40%), hsl(155 100% 30%))' }}>
+        style={{ aspectRatio: '1.6/1', background: 'linear-gradient(135deg, hsl(270 80% 30%), hsl(210 100% 40%))' }}>
         <div className="absolute inset-0 p-6 flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <span className="text-white/80 text-sm font-medium">StellarFlow</span>
@@ -43,7 +43,7 @@ const CardManagement = () => {
             <p className="text-white/60 text-xs mb-1">Card Number</p>
             <div className="flex items-center gap-2">
               <p className="text-white text-lg font-mono tracking-wider">
-                {showNumber ? cardNumber : '•••• •••• •••• 4829'}
+                {showNumber ? cardNumber : '•• •• •• • 4829'}
               </p>
               <button onClick={copyNumber} className="text-white/40 hover:text-white/70 transition-colors">
                 <Copy className="w-3.5 h-3.5" />
