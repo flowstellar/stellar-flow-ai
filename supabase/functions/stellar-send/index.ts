@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.dts";
+import "jsr:@supabase/functions-js/edge-runtime.d";
 import {
   Keypair,
   Networks,
@@ -19,6 +20,7 @@ const HORIZON_URL = "https://horizon-testnet.stellar.org";
 const MINIMUM_ACCOUNT_BALANCE = 1; // 1 XLM base reserve
 
 Deno.serve(async (req) => {
+export const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -186,4 +188,8 @@ Deno.serve(async (req) => {
       }
     );
   }
-});
+};
+
+if (import.meta.main) {
+  Deno.serve(handler);
+}
