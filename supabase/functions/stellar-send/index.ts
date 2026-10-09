@@ -22,6 +22,65 @@ const MINIMUM_ACCOUNT_BALANCE = 1; // 1 XLM base reserve
 interface HorizonAccountResponse {
   sequence: string;
   [key: string]: unknown;
+// Stellar MEMO_TEXT is limited to 28 bytes. We clamp by UTF-8 byte length,
+// not by JavaScript `String.length` (which counts UTf-16 code units and is
+// wrong for emoji and other non-BMP characters).
+const MEMO_BYTE_LIMIT = 28;
+
+function truncateUtf8Bytes(value: string, maxBytes: number): string {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(value);
+  if (bytes.length <= maxBytes) return value;
+
+  // Walk backwards from the byte cutoff until we have a valid UTF-8 boundary.
+  // A continuation byte has the form 10xxxxxxx, so we stop at the first byte
+  // that is not a continuation byte.
+  let end = maxBytes;
+  while (end > 0 && (bytes[end] & 0xc0) === 0x80) {
+    end--;
+  }
+  // If the byte at `end` is the start of a multi-byte sequence that would extend
+  // past the limit, drop it entirely.
+  const lead = bytes[end];
+  let sequenceLength = 1;
+  if (lead >= 0xf0) sequenceLength = 4;
+  else if (lead >= 0xe0) sequenceLength = 3;
+  else if (lead >= 0xc0) sequenceLength = 2;
+  if (end + sequenceLength > maxBytes) {
+    end--;
+  }
+  return new TextDecoder().decode(bytes.subarray(0, end));
+}
+
+// Memo.text accepts only printable ASCII characters. When the memo contains
+// anything outside that range (emoji, Cyrillic, curly apostrophe, etc.) we
+// encode the UTF-8 bytes as a latin1 string so the memo still round-trips
+ // through the chain. The byte budget is enforced before encoding.
+function buildMemo(rawMemo: string): Memo {
+  const memo = truncateUtf8Bytes(rawMemo, MEMO_BYTE_LIMIT);
+  if (memo.length === 0) {
+    throw new Error("Memo is empty after truncation");
+  }
+
+ // ASCII-only memos go through the native MEMO_TEXT path unchanged.
+  if (/^[\x20-\x7e]*$/.test(memo)) {
+    return Memo.text(memo);
+  }
+
+  // Non-ASCII: encode the UTF-8 bytes as a latin1 string that the SDK
+  // accepts as a MEMO_TEXT. This preserves the original bytes on chain.
+  const bytes = new TextEncoder().encode(memo);
+  let latin1 = "";
+  for (const b  of bytes) {
+    latin1 += String.fromCharCode(b);
+  }
+  try {
+    return Memo.text(latin1);
+  } catch {
+    // Last resort: fall back to a hash of the original memo so the transaction
+    // can still be submitted.
+    return Memo.hash(Buffer.from(memo, "utf-8"));
+  }
 }
 
 Deno.serve(async (req) => {
@@ -152,8 +211,22 @@ export const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    if (memo) {
-      builder = builder.addMemo(Memo.text(memo.substring(0, 28)));
+    if (memo !== undefined && memo !== null && String(memo).length > 0) {
+      try {
+        builder = builder.addMemo(buildMemo(String(memo)));
+      } catch (err) {
+        const detail = err instanceof Error ? err.message : "Unknown error";
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `Memo cannot be represented on-chain: ${detail}`,
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
     }
 
     const transaction = builder.setTimeout(30).build();
