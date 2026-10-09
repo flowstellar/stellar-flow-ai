@@ -45,6 +45,7 @@ This project integrates with Stellar blockchain using a Lovable AI-powered proto
 ---
 
 > Replace with your actual website screenshots
+> The video shows the AI interface, sending a transaction, and proof of Stellar integration.
 
 ---
 
@@ -64,6 +65,17 @@ build time (see `src/integrations/supabase/client.ts`). Copy `.env.example` to
 
 ## 🧰 Development Note
 
+## 🧠 Development Note
+
 - The frontend UI and AI integration were prototyped using Lovable AI  
 - Core logic, Stellar transaction integration, and project idea are implemented and validated by me  
-- `.gitignore
+- .gitignore
+
+### Required Build Environment Variables
+
+The production build requires the following environment variables. The build will fail fast if either is missing:
+
+- `VITE_SUPABASE_URL` — the Supabase project URL
+- `VITE_SUPABASE_PUBLISHABLE_KEY` — the Supabase publishable (anon) key
+
+For local development, add them to a `.env` file at the repository root. In CI, supply them via repository secrets (see `.github/workflows/ci.yml`).
