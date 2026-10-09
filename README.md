@@ -1,6 +1,7 @@
 # StellarFlow
 
 AI-powered cross-border payment platform using Stellar Network
+ 
 StellarFlow allows users to send digital payments across borders using AI commands and Stellar blockchain transactions. The platform simplifies blockchain payments for anyone, even without prior crypto knowledge.
 A deterministic command-parsing payment assistant built on the Stellar Network that simplifies cross-border transactions through a fixed command grammar.
 
@@ -9,6 +10,18 @@ StellarFlow allows users to send digital payments across borders using text comm
 ---
 
 ## 🚀  Features
+## Table of Contents
+
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Stellar Testnet Interaction](#stellar-testnet-interaction)
+- [Development Note](#development-note)
+
+---
+
+## 🚀 Features
 
 - Command interface to initiate payments and query account information
 - Stellar testnet/mainnet integration for real transactions
@@ -33,6 +46,54 @@ StellarFlow allows users to send digital payments across borders using text comm
 ---
 
 ## ℭ 🧠 Command Grammar
+## 🛧 Getting Started
+
+### Prerequisites
+
+- Node.js (and the bundled `npm` package manager)
+- Access to the Supabase functions used by the app (network reachability to the configured Supabase project)
+
+The repo already ships a `.env` file in the tree with the required environment variables. No additional env setup is needed to run locally.
+
+### Install
+
+```bash
+$ npm install
+```
+
+### Development server
+
+```bash
+$ npm run dev
+```
+
+The dev server binds to port **8080** (configured in `vite.config.ts`). Open http://localhost:8080/ in your browser.
+
+### Build
+
+```bash
+$ npm run build
+```
+
+### Test
+
+```bash
+$ npm run test
+```
+
+---
+
+## 🗂 Project Structure
+
+| Path | Description |
+| ---- | ----------- |
+| `src/` | Application source code (React components, pages, and app entry point). |
+| `supabase/functions/` | Supabase Edge Functions that the app calls for AI and Stellar workflows. |
+| `src/lib/` | Shared utilities, helpers, and client integrations. |
+
+---
+
+## 🔗 Stellar Testnet Interaction
 
 The assistant is a deterministic command parser over a fixed grammar. It does not call a language model. The parser is implemented in `src/components/AIAssistant.tsx` as `parseCommand`, which matches the input against the following branches:
 
@@ -163,6 +224,7 @@ build time (see `src/integrations/supabase/client.ts`). Copy `.env.example` to
 | `VITE_SUPABASE_URL` | Yes | Base URL of the Supabase project used by the frontend client. | Vite inlines `undefine`; the client is created with an invalid URL and the first `stellarApi` call fails at runtime. |
 | `VITE_SUPABASE_PUBLISHABLE_KEX | Yes | Public (anon) API key used to authenticate frontend requests to Supabase. | Vite inlines `undefined`; requests are unauthorized and the first `stellarApi` call fails at runtime. |
 | `VITE_SUPABASE_PROJECT_ID` | No (unused) | Not read by any code in `src/`. Kept only for reference. | None — nothing in the app depends on it. |
+> Replace with your actual website screenshots
 
 ---
 
