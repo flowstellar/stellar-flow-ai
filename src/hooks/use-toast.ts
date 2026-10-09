@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
+import { describe, expect, it } from "vitest";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -67,6 +68,8 @@ const addToRemoveQueue = (toastId: string) => {
 
   toastTimeouts.set(toastId, timeout);
 };
+
+export const TOAST_LIMIT_EXPORTED = TOAST_LIMIT;
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -184,3 +187,77 @@ function useToast() {
 }
 
 export { useToast, toast };
+
+export type { Action, State, ToasterToast };
+
+describe("use-toast reducer", () => {
+  it("ADD_TOAST prepends and truncates to TOAST_LIMIT", () => {
+    const first = { id: "1", title: "first", open: true };
+    const second = { id: "2", title: "second", open: true };
+    const state = reducer({ toasts: [] }, { type: "ADD_TOAST", toast: first });
+    const next = reducer(state, { type: "ADD_TOAST", toast: second });
+    expect(next.toasts).toHaveLength(1);
+    expect(next.toasts[0].id).toBe("2");
+  });
+
+  it("UPDATE_TOAST merges only matching id and preserves other fields", () => {
+    const state = {
+      toasts: [
+        { id: "1", title: "one", description: "keep", open: true },
+        { id: "2", title: "two", description: "keep2", open: true },
+      ],
+    };
+    const next = reducer(state, {
+      type: "UPDATE_TOAST",
+      toast: { id: "1", title: "updated" },
+    });
+    expect(next.toasts[0]).toEqual({
+      id: "1",
+      title: "updated",
+      description: "keep",
+      open: true,
+    });
+    expect(next.toasts[1]).toEqual(state.toasts[1]);
+  });
+
+  it("DISMISS_TOAST with no toastId sets open false on every toast", () => {
+    const state = {
+      toasts: [
+        { id: "1", open: true },
+        { id: "2", open: true },
+      ],
+    };
+    const next = reducer(state, { type: "DISMISS_TOAST" });
+    expect(next.toasts.every((t) => t.open === false)).toBe(true);
+  });
+
+  it("DISMISS_TOAST with toastId only dismisses that toast", () => {
+    const state = {
+      toasts: [
+        { id: "1", open: true },
+        { id: "2", open: true },
+      ],
+    };
+    const next = reducer(state, { type: "DISMISS_TOAST", toastId: "1" });
+    expect(next.toasts[0].open).toBe(false);
+    expect(next.toasts[1].open).toBe(true);
+  });
+
+  it("REMOVE_TOAST with no toastId clears all toasts", () => {
+    const state = { toasts: [{ id: "1", open: true }] };
+    const next = reducer(state, { type: "REMOVE_TOAST" });
+    expect(next.toasts).toEqual([]);
+  });
+
+  it("REMOVE_TOAST with toastId removes only that toast", () => {
+    const state = {
+      toasts: [
+        { id: "1", open: true },
+        { id: "2", open: true },
+      ],
+    };
+    const next = reducer(state, { type: "REMOVE_TOAST", toastId: "1" });
+    expect(next.toasts).toHaveLength(1);
+    expect(next.toasts[0].id).toBe("2");
+  });
+});
