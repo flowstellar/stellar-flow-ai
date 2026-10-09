@@ -16,6 +16,36 @@ const corsHeaders = {
   "Access-Control-Allow-headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+const DEFAULT_ALLOWED_ORIGINS = [
+  "http://localhost:8080",
+  "https://stellar-flow.app",
+];
+
+function getAllowedOrigins(): string[] {
+  const raw = Deno.env.get("ALLOWED_ORIGINS");
+  if (!raw) {
+    return DEFAULT_ALLOWED_ORIGINS;
+  }
+  const parsed = raw
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+  return parsed.length > 0 ? parsed : DEFAULT_ALLOWED_ORIGINS;
+}
+
+const ALLOWED_HEADERS =
+  "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version";
+
+function buildCorsHeaders(origin: string | null): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Vary": "Origin",
+    "Access-Control-Allowed-Headers": ALLOWED_HEADERS,
+  };
+  if (origin && getAllowedOrigins().includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
+}
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
@@ -133,7 +163,13 @@ async function resolveAuthenticatedUser(req: Request) {
 
 Deno.serve(async (req) => {
 export const handler = async (req: Request): Promise<Response> => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = buildCorsHeaders(origin);
+
   if (req.method === "OPTIONS") {
+    if (!origin || !getAllowedOrigins().includes(origin)) {
+      return new Response(null, { status: 403, headers: corsHeaders });
+    }
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -196,7 +232,7 @@ export const handler = async (req: Request): Promise<Response> => {
     // Validate keys
     let sourceKeypair: InstanceType<typeof Keypair>;
     try {
-      sourceKeypair = Keypair.fromSecret(secretKey);
+      sourceKeypair = Keypair.fromSecretKey(secretKey);
     } catch {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid secret key" }),

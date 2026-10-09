@@ -9,11 +9,15 @@ interface WalletRequest {
   action?: string;
   secretKey?: string;
 }
+import { Keypair } from "npm:@stellar/stellar-sdk@13";
+import { buildCorsHeaders, handlePreflight } from "../_shared/cors.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handlePreflight(req);
   }
+
+  const corsHeaders = buildCorsHeaders(req);
 
   try {
     const { action, secretKey } = (await req.json()) as WalletRequest;
