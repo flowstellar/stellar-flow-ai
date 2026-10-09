@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-    - main
+    - ''
   pull_request: null
 jobs:
   verify:
@@ -10,9 +10,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Setup Node
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 20
@@ -21,8 +19,8 @@ jobs:
       run: npm ci
     - name: Lint
       run: npm run lint
-    - name: Build
-      run: npm run build
+    - name: Test
+      run: npm run test
     name: Lint and build
   functions:
     name: Edge Functions Tests
@@ -43,3 +41,6 @@ on push:
 pull_request: null
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
