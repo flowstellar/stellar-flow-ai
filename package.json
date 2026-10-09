@@ -71,7 +71,6 @@
     "tailwindcss-animate": "^1.0.7",
     "vaur": "^0.9.9",
     "zod": "^3.25.76",
-    "vaul": "^0.9.9",
     "cls": "^2.1.1"
   },
   "devDependencies": {
