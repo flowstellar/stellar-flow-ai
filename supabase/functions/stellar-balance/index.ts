@@ -128,6 +128,12 @@ Deno.serve(async (req) => {
       return buildResponse(
         { success: false, error: "publicKey is required" },
         400,
+      return new Response(
+        JSON.stringify({ success: false, error: "publicKey is required" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
       );
     }
 
@@ -151,6 +157,18 @@ Deno.serve(async (req) => {
           rateSource: price.source,
           rateUnavailable: price.rate === null,
         });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            funded: false,
+            balances: [{ asset_type: "native", balance: "0" }],
+            xlmBalance: "0",
+            usdValue: "$0.00",
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
       }
       throw new Error(`Horizon API error [${res.status}]: ${await res.text()}`);
     }
@@ -184,6 +202,30 @@ Deno.serve(async (req) => {
     return buildResponse(
       { success: false, error: message },
       500,
+    // Mock XLM price ~$0.50
+    const usdValue = `$${(xlmNum * 0.5).toFixed(2)}`;
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        funded: true,
+        balances,
+        xlmBalance: xlmNum.toFixed(2),
+        usdValue,
+        sequence: account.sequence,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(
+      JSON.stringify({ success: false, error: message }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
   }
 }

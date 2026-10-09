@@ -42,18 +42,21 @@ export const handler = async (req: Request): Promise<Response> => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       return new Response(
-        JSON.stringify({ success: false, error: "Amount must be a positive number" }),
+        JSON.stringify({
+          success: false,
+          error: "Amount must be a positive number",
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -67,7 +70,7 @@ export const handler = async (req: Request): Promise<Response> => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -79,17 +82,17 @@ export const handler = async (req: Request): Promise<Response> => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     // Load source account
     const accountRes = await fetch(
-      `${HORIZON_URL}/accounts/${sourceKeypair.publicKey()}`
+      `${HORIZON_URL}/accounts/${sourceKeypair.publicKey()}`,
     );
     if (!accountRes.ok) {
       throw new Error(
-        `Failed to load source account [${accountRes.status}]: ${await accountRes.text()}`
+        `Failed to load source account [${accountRes.status}]: ${await accountRes.text()}`,
       );
     }
     const sourceAccount = (await accountRes.json()) as HorizonAccountResponse;
@@ -138,14 +141,14 @@ export const handler = async (req: Request): Promise<Response> => {
           destination,
           asset: Asset.native(),
           amount: amountNum.toFixed(7),
-        })
+        }),
       );
     } else {
       builder = builder.addOperation(
         Operation.createAccount({
           destination,
           startingBalance: amountNum.toFixed(7),
-        })
+        }),
       );
     }
 
@@ -169,7 +172,7 @@ export const handler = async (req: Request): Promise<Response> => {
     if (!submitRes.ok) {
       const extras = submitData.extras?.result_codes;
       throw new Error(
-        `Transaction failed: ${JSON.stringify(extras || submitData.detail || submitData.title)}`
+        `Transaction failed: ${JSON.stringify(extras || submitData.detail || submitData.title)}`,
       );
     }
 
@@ -183,7 +186,7 @@ export const handler = async (req: Request): Promise<Response> => {
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -193,7 +196,7 @@ export const handler = async (req: Request): Promise<Response> => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 };
