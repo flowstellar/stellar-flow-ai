@@ -30,10 +30,6 @@ export interface ScheduledPayment {
 
 export const WALLET_ADDRESS = 'GDRQHFT2XKGCV7MWZXHXQG5FYCXMUHKG4';
 
-export const BALANCE = {
-  xlm: '2,847.53',
-  usd: '$1,423.76',
-};
 
 export const TOKENS: Token[] = [
   { symbol: 'USDC', name: 'USD Coin', description: 'Dollar-pegged stablecoin on Stellar', category: 'stablecoins', price: '$1.00', change: '+0.01%', icon: '💵' },
