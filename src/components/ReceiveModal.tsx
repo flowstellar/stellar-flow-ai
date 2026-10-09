@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Copy } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { toast } from '@/hooks/use-toast';
@@ -23,6 +23,9 @@ const ReceiveModal = ({ open, onClose }: ReceiveModalProps) => {
       <DialogContent className="glass-card border-border/50 max-w-sm mx-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-foreground">Receive Payment</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground text-center">
+            Scan the QR code or copy your wallet address to receive funds.
+          </DialogDescription>
         </DialogHeader>
         {wallet ? (
           <div className="flex flex-col items-center gap-5 py-4">
