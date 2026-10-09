@@ -207,6 +207,21 @@ const Landing = () => {
                 <div className="bg-secondary/30 rounded-2xl rounded-bl-md px-3 py-2 text-xs text-foreground max-w-[80%]">
                   Sending 50 XLM to John...
                     Send $50 to John
+                <div className="bg-secondary/30 rounded-2xl rounded-bl-md px-3 py-2 text-xs text-foreground max-w-[85%] space-y-2">
+                  <p>I'll send <strong>50 XLM</strong> to Alice.</p>
+                  <div className="bg-primary/10 rounded-lg p-2 space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-muted-foreground">Amount</span>
+                      <span>50 XLM</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-muted-foreground">Fee</span>
+                      <span className="text-muted-foreground italic">fee determined at submission</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 neon-gradient text-primary-foreground text-[10px] font-semibold py-1.5 rounded-lg text-center">Approve</div>
+                    <div className="px-3 py-1.5 bg-destructive/10 text-destructive text-[10px] rounded-lg">Cancel</div>
                   </div>
                 </div>
                 <div className="bg-secondary/30 rounded-2xl rounded-bl-md px-3 py-2 text-xs text-foreground max-w-[80%] space-y-1">
@@ -267,6 +282,15 @@ const Landing = () => {
                 </div>
                 <h3 className="font-semibold text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{f.desc}</p>
+              { value: '2-5s', label: 'Transaction Speed' },
+              { value: '~0.00001 XLM', label: 'Average Network Fee' },
+              { value: '150+', label: 'Countries Supported' },
+              { value: 'USDC', label: 'Stablecoin Support' },
+            ].map((s, i) => (
+              <motion.div key={s.label} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.5}
+                className="glass-card p-6 rounded-2xl text-center">
+                <p className="text-2xl font-bold neon-gradient-text">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
               </motion.div>
             ))}
           </div>
