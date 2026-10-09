@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
 import { stellarApi } from '@/lib/stellarApi';
+import { isValidStellarAddress } from '@/lib/stellarAddress';
 import PinLock from './PinLock';
 import { loadTxHistory, saveTxHistory } from '@/lib/txHistory';
 
@@ -140,7 +141,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
 
     // Send command — "send 5 xlm to GXXX..."
     const sendMatch = text.match(/send\s+(\d+\.?\d*)\s*(xlm|usdc|eurc)?\s*(?:to\s+)?(G[A-Z0-9]{50,})/i);
-    if (sendMatch) {
+    if (sendMatch && isValidStellarAddress(sendMatch[4])) {
       const [, amount, rawAsset, destination] = sendMatch;
       const asset = (rawAsset || 'XLM').toUpperCase();
       const amountNum = parseFloat(amount);
@@ -254,6 +255,15 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
 
     setActiveTxId(msgId);
     const { destination, amount, asset, memo } = msg.txPending;
+
+    if (!isValidStellarAddress(destination)) {
+      setMessages(prev => prev.map(m =>
+        m.id === msgId
+          ? { ...m, txPending: undefined, txResult: { status: 'error', message: 'Invalid recipient address' } }
+          : m
+      ));
+      return;
+    }
 
     try {
       // Pre-flight: enforce minimum balance for new accounts
