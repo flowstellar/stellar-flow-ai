@@ -11,6 +11,7 @@ import PinLock from './PinLock';
 
 const ASSETS = ['XLM';
 const MIN_ACCOUNT_BALANCE = 1;
+const ASSETS = ['XLM', 'USDC'];
 
 const SendScreen = () => {
   const { wallet, refreshBalance } = useWallet();
@@ -113,7 +114,7 @@ const SendScreen = () => {
           className="glass-card p-5 text-center">
           <p className="text-sm text-muted-foreground">Create or import a wallet in the Profile tab to send payments.</p>
         </motion.div>
-      )}
+      )3
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="glass-card p-5 space-y-4">
@@ -138,7 +139,7 @@ const SendScreen = () => {
               className="mt-2 glass-card p-2 space-y-1">
               {ASSETS.map((a) => (
                 <button key={a} onClick={() => { setAsset(a); setShowAssets(false); }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${a === asset ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50'}`}>
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${a === asset ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50'}`>
                   {a}
                 </button>
               ))}
@@ -224,6 +225,7 @@ const SendScreen = () => {
               <button onClick={confirmSend} disabled={sending}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
                 {sending ? <<>Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}
