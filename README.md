@@ -127,8 +127,13 @@ Any input that does not match one of the branches above returns a static help st
 
 > Replace with your actual website screenshots
 > The video shows the AI interface, sending a transaction, and proof of Stellar integration.
+## 🖼 Screenshots
 
----
+### Landing Page
+
+![StellarFlow landing page with the AI payment assistant interface](docs/screenshot-landing.png)
+
+### AI Assistant
 
 ## ⚙️ Environment
 ## 🔗 Stellar Testnet Interaction
@@ -139,6 +144,9 @@ This project integrates with the Stellar blockchain.
 - Example Transaction Hash: <PASTE_HASH_HERE>
 
 > You can verify it on [Stellar Laboratory](https://laboratory.stellar.org/)
+![StellarFlow AI assistant conversation screen initiating a Stellar payment](docs/screenshot-assistant.png)
+
+> The video shows the AI interface, sending a transaction, and proof of Stellar integration.
 
 ---
 
