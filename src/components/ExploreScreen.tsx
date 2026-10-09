@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Plus, Check } from 'lucide-react';
 import { TOKENS, Token } from '@/lib/mockData';
+import { filterTokens } from '@/lib/filterTokens';
 import { toast } from '@/hooks/use-toast';
 
 const CATEGORIES = [
@@ -16,11 +17,7 @@ const ExploreScreen = () => {
   const [search, setSearch] = useState('');
   const [added, setAdded] = useState<string[]>([]);
 
-  const filtered = TOKENS.filter((t) => {
-    if (category !== 'all' && t.category !== category) return false;
-    if (search && !t.name.toLowerCase().includes(search.toLowerCase()) && !t.symbol.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const filtered = filterTokens(TOKENS, category, search);
 
   const addToken = (token: Token) => {
     setAdded((prev) => [...prev, token.symbol]);
@@ -38,6 +35,7 @@ const ExploreScreen = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="relative">
         <Search className="absolute left-3 top-1/2--translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2-translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
