@@ -20,6 +20,8 @@ export interface SendResult {
   createdAt: string;
 }
 
+export const MIN_ACCOUNT_BALANCE = 1;
+
 export const stellarApi = {
   async createWallet(): Promise<WalletData> {
     const { data, error } = await supabase.functions.invoke('stellar-wallet', {

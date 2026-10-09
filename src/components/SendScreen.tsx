@@ -9,7 +9,8 @@ import { stellarApi } from '@/lib/stellarApi';
 import ScheduledPayments from './ScheduledPayments';
 import PinLock from './PinLock';
 
-const ASSETS = ['XLM'];
+const ASSETS = ['XLM';
+const MIN_ACCOUNT_BALANCE = 1;
 
 const SendScreen = () => {
   const { wallet, refreshBalance } = useWallet();
@@ -34,11 +35,21 @@ const SendScreen = () => {
       toast({ title: 'Missing fields', description: 'Please fill in all fields', variant: 'destructive' });
       return;
     }
-    if (parseFloat(amount) <= 0) {
+    const amountNum = parseFloat(amount);
+    if (isNaN(amountNum) || amountNum <= 0) {
       toast({ title: 'Invalid amount', description: 'Amount must be positive', variant: 'destructive' });
       return;
     }
-    // If PIN is set, require verification first
+    // New accounts require at least the base reserve (1 XLM)
+    if (amountNum < MIN_ACCOUNT_BALANCE) {
+      toast({
+        title: 'Amount below minimum',
+        description: `New accounts must be funded with at least ${MIN_ACCOUNT_BALANCE} XLM. Please fund the account first or send at least ${MIN_ACCOUNT_BALANCE} XLM.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    // If PiN is set, require verification first
     if (isPinSet) {
       setShowPinVerify(true);
     } else {
@@ -161,7 +172,7 @@ const SendScreen = () => {
       <ScheduledPayments />
 
       {/* Confirm Modal */}
-      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+      <Dialog open={showConfirm} onopenChange={setShowConfirm}>
         <DialogContent className="glass-card border-border/50 max-w-sm mx-auto">
           <DialogHeader>
             <DialogTitle className="text-foreground">
@@ -209,7 +220,7 @@ const SendScreen = () => {
             <DialogFooter>
               <button onClick={confirmSend} disabled={sending}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <<>Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}

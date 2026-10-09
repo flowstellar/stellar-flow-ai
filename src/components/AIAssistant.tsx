@@ -7,6 +7,8 @@ import { usePin } from '@/hooks/usePin';
 import { stellarApi } from '@/lib/stellarApi';
 import PinLock from './PinLock';
 
+const MIN_ACCOUNT_BALANCE_XLM = 1;
+
 interface TxPending {
   destination: string;
   amount: string;
@@ -99,6 +101,22 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     ));
   };
 
+  const checkMinimumForNewAccount = async (destination: string, amount: string, asset: string) => {
+    if (asset !== 'XLM') return null;
+    const amountNum = parseFloat(amount);
+    if (!Number.isFinite(amountNum)) return null;
+    try {
+      const destRes = await stellarApi.getAccount(destination);
+      if (destRes.ok) return null;
+    } catch {
+      return null;
+    }
+    if (amountNum < MIN_ACCOUNT_BALANCE_XLM) {
+      return `This destination account doesn't exist yet. Stellar requires a minimum starting balance of **${MIN_ACCOUNT_BALANCE_XLM} XLM** to create a new account. Please send at least ${MIN_ACCOUNT_BALANCE_XLM} XLM, or fund the account first.`;
+    }
+    return null;
+  };
+
   const parseCommand = (text: string): Partial<Message> => {
     const lower = text.toLowerCase();
 
@@ -107,6 +125,12 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     if (sendMatch) {
       const [, amount, rawAsset, destination] = sendMatch;
       const asset = (rawAsset || 'XLM').toUpperCase();
+      const amountNum = parseFloat(amount);
+      if (asset === 'XLM' && Number.isFinite(amountNum) && amountNum < MIN_ACCOUNT_BALANCE_XLM) {
+        return {
+          content: `⚠️ **Minimum balance required**\n\nIf \`${destination.slice(0, 8)}...${destination.slice(-6)}\` doesn't exist yet, Stellar requires a minimum starting balance of **${MIN_ACCOUNT_BALANCE_XLM} XLM** to create the account.\n\nYou asked to send **${amount} ${asset}**, which is below that minimum. Please send at least **${MIN_ACCOUNT_BALANCE_XLM} XLM**, or fund the destination account first.`,
+        };
+      }
       return {
         content: `🔄 **Transaction Request**\n\nI'll send **${amount} ${asset}** to:\n\`${destination.slice(0, 8)}...${destination.slice(-6)}\``,
         txPending: { destination, amount, asset, status: 'awaiting' },
@@ -214,6 +238,18 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
     const { destination, amount, asset, memo } = msg.txPending;
 
     try {
+      // Pre-flight: enforce minimum balance for new accounts
+      const minError = await checkMinimumForNewAccount(destination, amount, asset);
+      if (minError) {
+        setMessages(prev => prev.map(m =>
+          m.id === msgId
+            ? { ...m, txPending: undefined, txResult: { status: 'error', message: minError } }
+            : m
+        ));
+        toast({ title: 'Below minimum balance', description: `New accounts require at least ${MIN_ACCOUNT_BALANCE_XLM} XLM.`, variant: 'destructive' });
+        return;
+      }
+
       // Step 1: Building
       updateTxStatus(msgId, 'building');
       await new Promise(r => setTimeout(r, 800));

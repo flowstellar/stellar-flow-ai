@@ -1,4 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
 import {
   Keypair,
   Networks,
@@ -15,6 +15,8 @@ const corsHeaders = {
 };
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
+
+const MINIMUM_ACCOUNT_BALANCE = 1; // 1 XLM base reserve
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -88,6 +90,21 @@ Deno.serve(async (req) => {
     // Check if destination exists
     const destRes = await fetch(`${HORIZON_URL}/accounts/${destination}`);
     const destinationExists = destRes.ok;
+
+    // Enforce minimum balance for new accounts
+    if (!destinationExists && amountNum < MINIMUM_ACCOUNT_BALANCE) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `Destination account does not exist. Creating it requires a minimum of ${MINIMUM_ACCOUNT_BALANCE} XLM. Please fund the account first or send at least ${MINIMUM_ACCOUNT_BALANCE} XLM.`,
+          minimum: MINIMUM_ACCOUNT_BALANCE,
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     // Build transaction
     const account = {
