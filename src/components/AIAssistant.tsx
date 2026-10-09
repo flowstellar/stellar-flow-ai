@@ -135,6 +135,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
   };
 
   const parseCommand = (text: string): Partial<Message> => {
+  export const parseCommand = (text: string): Partial<Message> => {
     const lower = text.toLowerCase();
 
     // Send command — "send 5 xlm to GXXX..."
