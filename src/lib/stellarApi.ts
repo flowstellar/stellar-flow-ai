@@ -10,7 +10,17 @@ export interface BalanceData {
   funded: boolean;
   balances: Array<{ asset_type: string; balance: string; asset_code?: string; asset_issuer?: string }>;
   xlmBalance: string;
-  usdValue: string;
+  /** USD value as a formatted string. `null` when the rate lookup failed. */
+  usdValue: string | null;
+  /** XLM/USD rate used to derive `usdValue`. `null` when unavailable. */
+  rate: number | null;
+  /** ISO timestamp of when the rate was obtained. */
+  rateTimestamp: string;
+  /** Source of the rate (e.g. "coingecko"). */
+  rateSource: string;
+  /** True when the rate lookup failed and `usdValue` is null. */
+  rateUnavailable: boolean;
+  sequence?: string;
 }
 
 export interface SendResult {
@@ -47,7 +57,7 @@ export const stellarApi = {
     });
     if (error) throw new Error(error.message || 'Failed to fetch balance');
     if (!data.success) throw new Error(data.error);
-    return data;
+    return data as BalanceData;
   },
 
   async sendPayment(params: {
