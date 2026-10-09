@@ -1,0 +1,15 @@
+title = "gitleaks config for secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "supabase-jwt"
+description = "Supabase JWT-shaped publishable key"
+regex = ''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*\.[a-zA-Z0-9_-]*''
+entropy = 3.5
+secretGroup = 0
+keywords = [
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_PUBLISHABLE_KEY",
+]
