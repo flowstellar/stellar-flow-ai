@@ -20,6 +20,15 @@ export default defineConfig({
     pool: "forks",
     poolOptions: {
       singleFork: true,
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      thresholds: {
+        lines: 0,
+        functions: 0,
+        branches: 0,
+        statements: 0,
+      },
     },
   },
   resolve: {

@@ -3,16 +3,14 @@ on:
   push:
     branches:
     - main
-  pull_request:
-    branches:
-    - main
+  pull_request: null
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Setup Node.js
+    - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: 20
@@ -21,9 +19,16 @@ jobs:
       run: npm ci
     - name: Lint
       run: npm run lint
-    - name: Test
-      run: npm run test
-    name: verify
+    - name: Test with coverage
+      run: npm run test:coverage
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-lcov
+        path: coverage/lcov.info
+        if-no-files-found: warn
+    name: Verify
     env:
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_PUBLISHABLE_KEY: ${+ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
