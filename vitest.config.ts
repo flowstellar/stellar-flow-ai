@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     exclude: ["node_modules", "dist", ".stryker-tmp"],
+    css: false,
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
