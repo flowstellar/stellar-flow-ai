@@ -36,7 +36,7 @@ const DashboardContent = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="max-w-md w-full">
-          <PinLock mode="verify" onSuccess={handlePinVerify} title={pinError ? 'Wrong PIN. Try again' : undefined} />
+          <PinLock mode="verify" onSuccess={handlePinVerify} onFailure={() => setPinError(true)} />
         </div>
       </div>
     );

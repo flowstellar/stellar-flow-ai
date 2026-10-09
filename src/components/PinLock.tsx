@@ -5,11 +5,12 @@ import { Lock, Delete, Fingerprint } from 'lucide-react';
 interface PinLockProps {
   mode: 'set' | 'verify';
   onSuccess: (pin: string) => void;
+  onFailure?: () => void;
   onCancel?: () => void;
   title?: string;
 }
 
-const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
+const PinLock = ({ mode, onSuccess, onFailure, onCancel, title }: PinLockProps) => {
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [step, setStep] = useState<'enter' | 'confirm'>('enter');
@@ -20,26 +21,27 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
 
   useEffect(() => {
-    if (pin.length === maxLength) {
-      if (mode === 'set') {
-        if (step === 'enter') {
-          setConfirmPin(pin);
-          setPin('');
-          setStep('confirm');
-        } else {
-          if (pin === confirmPin) {
-            onSuccess(pin);
-          } else {
-            setError('PINs do not match');
-            triggerShake();
-            setPin('');
-            setStep('enter');
-            setConfirmPin('');
-          }
-        }
+    if (pin.length !== maxLength) return;
+
+    if (mode === 'set') {
+      if (step === 'enter') {
+        setConfirmPin(pin);
+        setPin('');
+        setStep('confirm');
       } else {
-        onSuccess(pin);
+        if (pin === confirmPin) {
+          onSuccess(pin);
+        } else {
+          setError('PINs do not match');
+          triggerShake();
+          setPin('');
+          setStep('enter');
+          setConfirmPin('');
+          onFailure?.();
+        }
       }
+    } else {
+      onSuccess(pin);
     }
   }, [pin]);
 
@@ -80,7 +82,7 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
             i < pin.length
               ? 'bg-primary border-primary shadow-lg shadow-primary/30'
               : 'border-muted-foreground/30'
-          }`} />
+          }`.replace(/\s+/g, ' ') } />
         ))}
       </motion.div>
 
@@ -99,7 +101,7 @@ const PinLock = ({ mode, onSuccess, onCancel, title }: PinLockProps) => {
               key === '' ? 'invisible' :
               key === 'del' ? 'text-muted-foreground hover:text-foreground hover:bg-secondary/50' :
               'text-foreground hover:bg-secondary/50 glass-card'
-            }`}>
+            }`.replace(/\s+/g, ' ')}>
             {key === 'del' ? <Delete className="w-6 h-6 mx-auto" /> : key}
           </button>
         ))}
