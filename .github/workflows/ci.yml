@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-    - ''
+    - main
   pull_request: null
 jobs:
   verify:
@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Setup Node.js
+    - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: 20
@@ -21,7 +21,9 @@ jobs:
       run: npm run lint
     - name: Test
       run: npm run test
-    name: Lint and build
+    - name: Build
+      run: npm run build
+    name: verify
   functions:
     name: Edge Functions Tests
     runs-on: ubuntu-latest
