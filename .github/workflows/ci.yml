@@ -2,16 +2,18 @@ name: CI
 on:
   push:
     branches:
-    - '*'
+    - main
   pull_request: null
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@11bd1f0c19b4eb39c19c19c19c19c19c19c19c19
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Setup Node
-      uses: actions/setup-node@1e60e319c19c19c19c19c19c19c19c19c19c19
+      uses: actions/setup-node@v4
       with:
         node-version: 20
         cache: npm
@@ -21,7 +23,7 @@ jobs:
       run: npm run lint
     - name: Build
       run: npm run build
-    name: Verify
+    name: Lint and build
   functions:
     name: Edge Functions Tests
     runs-on: ubuntu-latest
@@ -39,3 +41,5 @@ on push:
   branches:
   - main
 pull_request: null
+permissions:
+  contents: read
