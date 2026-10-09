@@ -12,6 +12,9 @@ const Landing = () => {
 
   const goApp = () => navigate('/app');
 
+  const balanceXlm = '2,847.53';
+  const balanceUsd = '$1,423.76';
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Navbar */}
@@ -89,8 +92,8 @@ const Landing = () => {
                 <span className="text-sm text-muted-foreground">Total Balance</span>
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
               </div>
-              <p className="text-3xl font-bold glow-text-green">2,847.53 <span className="text-lg text-muted-foreground">XLM</span></p>
-              <p className="text-sm text-muted-foreground">≈ $1,423.76</p>
+              <p className="text-3xl font-bold glow-text-green">{balanceXlm} <span className="text-lg text-muted-foreground">XLM</span></p>
+              <p className="text-sm text-muted-foreground">≈ {balanceUsd}</p>
               <div className="grid grid-cols-3 gap-2 pt-2">
                 {['Send', 'Receive', 'Convert'].map(a => (
                   <div key={a} className="bg-secondary/50 rounded-xl py-2 text-center text-xs font-medium text-foreground">{a}</div>
