@@ -82,6 +82,16 @@ function buildMemo(rawMemo: string): Memo {
     return Memo.hash(Buffer.from(memo, "utf-8"));
   }
 }
+// Base reserve is 2 Lumens (0.5 XLM) per account + 0.5 XLM for each entry.
+// We conservatively use the minimum account reserve of 1 XLM for a basic account.
+const BASE_RESERVE_XLM = 1;
+const FEE_XLM = 0.00001;
+
+const jsonResponse = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 
 Deno.serve(async (req) => {
 export const handler = async (req: Request): Promise<Response> => {
@@ -93,8 +103,8 @@ export const handler = async (req: Request): Promise<Response> => {
     const { secretKey, destination, amount, memo } = await req.json();
 
     if (!secretKey || !destination || !amount) {
-      return new Response(
-        JSON.stringify({
+      return jsonResponse(
+        {
           success: false,
           error: "secretKey, destination, and amount are required",
         }),
@@ -102,6 +112,8 @@ export const handler = async (req: Request): Promise<Response> => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
+        },
+        400
       );
     }
 
@@ -116,6 +128,9 @@ export const handler = async (req: Request): Promise<Response> => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
+      return jsonResponse(
+        { success: false, error: "Amount must be a positive number" },
+        400
       );
     }
 
@@ -130,6 +145,9 @@ export const handler = async (req: Request): Promise<Response> => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
+      return jsonResponse(
+        { success: false, error: "Invalid secret key" },
+        400
       );
     }
 
@@ -142,6 +160,9 @@ export const handler = async (req: Request): Promise<Response> => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
+      return jsonResponse(
+        { success: false, error: "Invalid destination address" },
+        400
       );
     }
 
@@ -155,6 +176,29 @@ export const handler = async (req: Request): Promise<Response> => {
       );
     }
     const sourceAccount = (await accountRes.json()) as HorizonAccountResponse;
+
+    // Read native balance from the loaded account
+    const nativeBalanceEntry = Array.isArray(sourceAccount.balances)
+      ? sourceAccount.balances.find(
+          (b: { asset_type?: string; balance?: string }) => b.asset_type === "native"
+        )
+      : undefined;
+    const nativeBalance = nativeBalanceEntry ? parseFloat(nativeBalanceEntry.balance ?? "0") : 0;
+
+    // Subtract base reserve and fee to compute spendable amount
+    const spendable = nativeBalance - BASE_RESERVE_XLM - FEE_XLM;
+    const spendableRounded = Math.floor(spendable * 1e7) / 1e7;
+
+    if (amountNum > spendableRounded) {
+      const available = spendableRounded > 0 ? spendableRounded : 0;
+      return jsonResponse(
+        {
+          success: false,
+          error: `Insufficient balance. Available amount: ${available.toFixed(7)} XLL`,
+        },
+        400
+      );
+    }
 
     // Check if destination exists
     const destRes = await fetch(`${HORIZON_URL}/accounts/${destination}`);
@@ -271,6 +315,17 @@ export const handler = async (req: Request): Promise<Response> => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
+    return jsonResponse({
+      success: true,
+      hash: submitData.hash,
+      ledger: submitData.ledger,
+      fee: submitData.fee_charged,
+      createdAt: submitData.created_at,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Send transaction error:", message);
+    return jsonResponse({ success: false, error: message }, 500);
   }
 };
 
