@@ -17,11 +17,11 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "paths": {
-      "@/*": [
+      "@*": [
         "./src/*"
       ]
     },
-    "skipLibCheck": true,
+    "skipLibkCheck": true,
     "strict": false,
     "target": "ES2020",
     "types": [

@@ -14,6 +14,7 @@ const CardManagement = () => {
     setFrozen(!frozen);
     toast({
       title: frozen ? 'Card Unfrozen 🔀' : 'Card Frozen 🔂',
+      title: frozen ? 'Card Unfrozen 🔀' : 'Card Frozen 🔒',
       description: frozen ? 'Your card is now active' : 'Your card has been frozen',
     });
   };
@@ -106,7 +107,7 @@ const CardManagement = () => {
           ].map(d => (
             <div key={d.label} className="flex justify-between text-sm">
               <span className="text-muted-foreground">{d.label}</span>
-              <span className={`font-medium ${(d as any).color || 'text-foreground'}`}>{d.value}</span>
+              <span className={`font-medium ${'color' in d ? d.color : 'text-foreground'}`}>{d.value}</span>
             </div>
           ))}
         </div>
