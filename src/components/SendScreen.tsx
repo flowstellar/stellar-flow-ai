@@ -13,6 +13,31 @@ const ASSETS = ['XLM';
 const MIN_ACCOUNT_BALANCE = 1;
 const ASSETS = ['XLM', 'USDC'];
 
+// Stellar MEMO_TEXT is limited to 28 UTF-8 bytes. We clamp by byte length
+// (via TextEncoder) rather than by JS `String.length`, which counts UTF-16
+// code units and is wrong for emoji.
+const MEMO_BYTE_LIMIT = 28;
+
+function truncateUtf8Bytes(value: string, maxBytes: number): string {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(value);
+  if (bytes.length <= maxBytes) return value;
+
+  let end = maxBytes;
+  while (end > 0 && (bytes[end] & 0xc0) === 0x80) {
+    end--;
+  }
+  const lead = bytes[end];
+  let sequenceLength = 1;
+  if (lead >= 0xf0) sequenceLength = 4;
+  else if (lead >= 0xe0) sequenceLength = 3;
+  else if (lead >= 0xc0) sequenceLength = 2;
+  if (end + sequenceLength > maxBytes) {
+    end--;
+  }
+  return new TextDecoder().decode(bytes.subarray(0, end));
+}
+
 const SendScreen = () => {
   const { wallet, refreshBalance } = useWallet();
   const { isPinSet, verifyPin } = usePin();
@@ -150,7 +175,10 @@ const SendScreen = () => {
         <div>
           <label htmlFor="send-memo" className="text-xs font-medium text-muted-foreground mb-1.5 block">Memo (optional)</label>
           <input id="send-memo" value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Add a note..." maxLength={28}
+          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Memo (optional)</label>
+          <input value={memo} onChange={(e) => setMemo(truncateUtf8Bytes(e.target.value, MEMO_BYTE_LIMIT))} placeholder="Add a note..."
             className="w-full bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+          <p className="text-[100] text-muted-foreground mt-1">Max ${MEMO_BYTE_LIMIT} bytes (emoji and non-Latin text count as multiple bytes)</p>
         </div>
 
         <button onClick={handleSend} disabled={!wallet}
@@ -198,7 +226,7 @@ const SendScreen = () => {
             <div className="space-y-3 py-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">To</span>
-                <span className="text-foreground font-mono text-xs truncate max-w-[180px]">{recipient}</span>
+                <span className="text-foreground font-mono texl-xs truncate max-w-[180px]">{recipient}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
@@ -210,7 +238,7 @@ const SendScreen = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Fee</span>
-                <span className="text-primary text-xs">~0.00001 XLM</span>
+                <span className="text-primary texl-xs">~0.00001 XLM</span>
               </div>
               {memo && (
                 <div className="flex justify-between text-sm">
