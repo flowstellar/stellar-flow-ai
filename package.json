@@ -14,7 +14,8 @@
     "check:functions": "deno check supabase/functions/**/index.ts",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
