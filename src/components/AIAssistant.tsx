@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, ArrowUpRight, BarChart3, CalendarClock, CheckCircle2, Loader2, XCircle, Clock, Zap, History } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -78,6 +78,36 @@ const STATUS_LABELS: Record<string, { text: string; icon: typeof Loader2 }> = {
 interface AIAssistantProps {
   onNavigate?: (tab: string) => void;
 }
+
+const renderInlineMarkdown = (text: string): ReactNode[] => {
+  const nodes: ReactNode[] = [];
+  const pattern = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+    const token = match[0];
+    if (token.startsWith('**')) {
+      nodes.push(<strong key={key++}>{token.slice(2, -2)}</strong>);
+    } else if (token.startsWith('*')) {
+      nodes.push(<em key={key++}>{token.slice(1, -1)}</em>);
+    } else {
+      nodes.push(
+        <code key={key++} className="text-xs bg-secondary/50 px-1 py-0.5 rounded">
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    lastIndex = match.index + token.length;
+  }
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+  return nodes;
+};
 
 const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
   const { wallet, refreshBalance } = useWallet();
@@ -450,9 +480,9 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] ${msg.role === 'user' ? 'neon-gradient text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5' : 'glass-card px-4 py-3 rounded-2xl rounded-bl-md'}`}>
-                <p className="text-sm whitespace-pre-line"
-                  dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code class="text-xs bg-secondary/50 px-1 py-0.5 rounded">$1</code>') }}
-                />
+                <p className="text-sm whitespace-pre-line">
+                  {renderInlineMarkdown(msg.content)}
+                </p>
                 {renderTxCard(msg)}
                 {renderTxResult(msg)}
 
