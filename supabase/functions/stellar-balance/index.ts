@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,6 +101,7 @@ export async function handleRequest(
     now?: () => number;
   } = {},
 ): Promise<Response> {
+export const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -287,3 +289,8 @@ Deno.test("stellar-balance: Horizon 500 returns 500", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+};
+
+if (import.meta.main) {
+  Deno.serve(handler);
+}

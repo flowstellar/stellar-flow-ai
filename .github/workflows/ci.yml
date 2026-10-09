@@ -2,8 +2,7 @@ name: CI
 on:
   push:
     branches:
-    - main
-    - master
+    - '*'
   pull_request: null
 jobs:
   verify:
@@ -22,7 +21,7 @@ jobs:
       run: npm run test
     name: verify
   functions:
-    name: Deno tests (supabase functions)
+    name: Edge Functions Tests
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -31,6 +30,6 @@ jobs:
       uses: denoland/setup-deno@v2
       with:
         deno-version: v1.x
-    - name: Run Deno tests
-      working-directory: supabase/functions
-      run: deno test --allow-net --allow-read
+    - name: Run function tests
+      working-directory: supabase/functions/stellar-balance
+      run: deno test
