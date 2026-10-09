@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
 import { stellarApi } from '@/lib/stellarApi';
+import { MEMO_BYTE_LIMIT, getMemoByteLength, isMemoWithinLimit } from '@/lib/memo';
 import ScheduledPayments from './ScheduledPayments';
 import PinLock from './PinLock';
 
@@ -59,6 +60,9 @@ const SendScreen = () => {
   const nativeBalance = typeof wallet?.balance === 'number' ? wallet.balance : 0;
   const spendableBalance = Math.floor((nativeBalance - BASE_RESERVE_XLM - FEE_XLM) * 1e7) / 1e7;
 
+  const memoByteLength = getMemoByteLength(memo);
+  const memoTooLong = !isMemoWithinLimit(memo);
+
   const handleSend = () => {
     if (!wallet) {
       toast({ title: 'No wallet', description: 'Create or import a wallet first', variant: 'destructive' });
@@ -94,6 +98,11 @@ const SendScreen = () => {
     }
     setParsedAmount(amountNum);
     // If PIN is set, require verification first
+    if (memoTooLong) {
+      toast({ title: 'Memo too long', description: `The memo must fit in ${MEMO_BYTE_LIMIT} UTF-8 bytes. Currently ${memoByteLength} bytes.`, variant: 'destructive' });
+      return;
+    }
+    // If PiN is set, require verification first
     if (isPinSet) {
       setShowPinVerify(true);
     } else {
@@ -115,6 +124,8 @@ const SendScreen = () => {
     const amountNum = parsedAmount !== null ? parsedAmount : Number(amount);
     if (!Number.isFinite(amountNum) || amountNum <= 0) {
       toast({ title: 'Invalid amount', description: 'Amount must be positive', variant: 'destructive' });
+    if (memoTooLong) {
+      toast({ title: 'Memo too long', description: `The memo must fit in ${MEMO_BYTE_LIMIT} UTF-8 bytes.`, variant: 'destructive' });
       setShowConfirm(false);
       return;
     }
@@ -204,9 +215,22 @@ const SendScreen = () => {
           <input value={memo} onChange={(e) => setMemo(truncateUtf8Bytes(e.target.value, MEMO_BYTE_LIMIT))} placeholder="Add a note..."
             className="w-full bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
           <p className="text-[100] text-muted-foreground mt-1">Max ${MEMO_BYTE_LIMIT} bytes (emoji and non-Latin text count as multiple bytes)</p>
+          <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Add a note..."
+            aria-invalid={memoTooLong}
+            aria-describedby={memo ? 'memo-counter' : undefined}
+            className={`w-full bg-secondary/50 border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 ${memoTooLong ? 'border-destructive focus:ring-destructive' : 'border-border/50 focus:ring-primary'}`} />
+          {memo && (
+            <div id="memo-counter" className="mt-1.5 flex items-center justify-between gap-2">
+              <span className={`text-[10px] ${memoTooLong ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {memoTooLong
+                  ? `Memo too long: ${memoByteLength}/${MEMO_BYTE_LIMIT} UTF-8 bytes`
+                  : `${memoByteLength}/${MEMO_BYTE_LIMIT} bytes`}
+              </span>
+            </div>
+          )}
         </div>
 
-        <button onClick={handleSend} disabled={!wallet}
+        <button onClick={handleSend} disabled={!wallet || memoTooLong}
           className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98] disabled:opacity-40">
           {isPinSet && <Shield className="w-4 h-4" />}
           <ArrowUpRight className="w-4 h-4" /> Send {asset}
@@ -276,10 +300,11 @@ const SendScreen = () => {
           )}
           {!sent && (
             <DialogFooter>
-              <button onClick={confirmSend} disabled={sending}
+              <button onClick={confirmSend} disabled={sending || memoTooLong}
                 className="w-full neon-gradient text-primary-foreground font-semibold py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
                 {sending ? <<>Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
                 {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}
