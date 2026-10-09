@@ -14,6 +14,13 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     exclude: ["node_modules", "dist", ".stryker-tmp"],
     css: false,
+    sequence: {
+      concurrent: false,
+    },
+    pool: "forks",
+    poolOptions: {
+      singleFork: true,
+    },
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
