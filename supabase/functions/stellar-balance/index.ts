@@ -92,6 +92,9 @@ export function __resetPriceCache() {
 }
 
 function buildResponse(body: Record<unknown, unknown>, status = 200) {
+const XLM_USD_PRICE = 0.5;
+
+function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -144,6 +147,18 @@ Deno.serve(async (req) => {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
+  if (req.method !== "POST") {
+    return jsonResponse({ success: false, error: "Method not allowed" }, 405);
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const publicKey = typeof body?.publicKey === "string" ? body.publicKey.trim() : "";
+
+    if (!publicKey) {
+      return jsonResponse(
+        { success: false, error: "publicKey is required" },
+        400,
       );
     }
 
@@ -157,6 +172,13 @@ Deno.serve(async (req) => {
       if (res.status === 404) {
         const zeroUsd = price.rate !== null ? "$0.00" : null;
         return buildResponse({
+    const res = await fetch(
+      `${HORIZON_URL}/accounts/${encodeURIComponent(publicKey)}`,
+    );
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        return jsonResponse({
           success: true,
           funded: false,
           balances: [{ asset_type: "native", balance: "0" }],
@@ -179,6 +201,8 @@ Deno.serve(async (req) => {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           },
         );
+          usdValue: "$0.00",
+        });
       }
       throw new Error(`Horizon API error [${res.status}]: ${await res.text()}`);
     }
@@ -237,6 +261,27 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
+    const account = await res.json();
+    const balances = Array.isArray(account.balances) ? account.balances : [];
+
+    const native = balances.find(
+      (b: { asset_type?: string }) => b.asset_type === "native",
+    ) as { balance?: string } | undefined;
+    const xlmBalance = native?.balance ?? "0";
+    const xlmNum = Number.parseFloat(xlmBalance);
+    const usdValue = `$${(xlmNum * XLM_USD_PRICE).toFixed(2)}`;
+
+    return jsonResponse({
+      success: true,
+      funded: true,
+      balances,
+      xlmBalance: xlmNum.toFixed(2),
+      usdValue,
+      sequence: account.sequence,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return jsonResponse({ success: false, error: message }, 500);
   }
 }
 

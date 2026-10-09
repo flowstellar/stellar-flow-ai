@@ -14,19 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      wallets: {
+        Row: {
+          id: string
+          user_id: string | null
+          public_key: string
+          label: string | null
+          network: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          public_key: string
+          label?: string | null
+          network?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          public_key?: string
+          label?: string | null
+          network?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          id: string
+          wallet_id: string
+          user_id: string | null
+          hash: string
+          direction: string
+          counterparty: string | null
+          amount: number
+          asset: string
+          memo: string | null
+          ledger: number | null
+          fee: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wallet_id: string
+          user_id?: string | null
+          hash: string
+          direction: string
+          counterparty?: string | null
+          amount: number
+          asset?: string
+          memo?: string | null
+          ledger?: number | null
+          fee?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          wallet_id?: string
+          user_id?: string | null
+          hash?: string
+          direction?: string
+          counterparty?: string | null
+          amount?: number
+          asset?: string
+          memo?: string | null
+          ledger?: number | null
+          fee?: number | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_wallet_id_fk_1"
+            columns: ["wallet_id"]
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      [_in never]: never
     }
     Functions: {
-      [_ in never]: never
+      [_in never]: never
     }
     Enums: {
-      [_ in never]: never
+      [_in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      [_in never]: never
     }
   }
 }
@@ -79,7 +160,7 @@ export type TablesInsert<
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
-    ? I
+    ? I}
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {

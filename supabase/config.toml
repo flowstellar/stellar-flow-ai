@@ -22,3 +22,38 @@ verify_jwt = true
 # project reference is committed to git. Set SUPABASE_PROJECT_ID in your
 # shell or .env before running `supabase start`.
 project_id = "env(SUPABASE_PROJECT_ID)"
+project_id = "wqdfsqabbzcgtrfbrwtx"
+
+# --------------------------------------------------------------------------
+# Edge Functions
+# -------------------------------------------------------------------------
+# verify_jwt is set deliberately per function:
+#   - stellar-wallet: public - creates/imports keypairs and funds via #freiendbot; no user session exists yet.
+#   - stellar-balance: public - reads only public account data from Horizon.
+#   - stellar-send: JWT enforced - signs and submits a transaction with a secret key.
+
+## Function import map (Deno)
+
+[functions.stellar-wallet]
+verify_jwt = false
+import_map = "deno.json"
+
+[functions.stellar-wallet.limits]
+memory_limit_mb = 256
+wall_time_limit_sec = 10
+
+[functions.stellar-balance]
+verify_jwt = false
+import_map = "deno.json"
+
+[functions.stellar-balance.limits]
+memory_limit_mb = 256
+wall_time_limit_sec = 10
+
+[functions.stellar-send]
+verify_jwt = true
+import_map = "deno.json"
+
+[functions.stellar-send.limits]
+memory_limit_mb = 256
+wall_time_limit_sec = 15
