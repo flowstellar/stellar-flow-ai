@@ -1,5 +1,5 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { Keypair } from "npm:@stellar/stellar-sdk@13";
+import "jsr:@supabase/functions-js/edge-runtime.dts";
+import { Keypair } from "npm:@stellar/stellar-sdk13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,7 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-Deno.serve(async (req) => {
+export const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -98,4 +98,8 @@ Deno.serve(async (req) => {
       }
     );
   }
-});
+};
+
+if (import.meta.main || Deno.env.get("SUPABASE_EXECUTION_ID_FROM_ENV")) {
+  Deno.serve(handler);
+}

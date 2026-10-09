@@ -22,15 +22,15 @@ jobs:
       run: npm run test
     name: verify
   functions:
-    name: Functions (Deno test)
+    name: Deno tests (supabase functions)
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Setup Deno
-      uses: denoland/setup-deno@v1
+      uses: denoland/setup-deno@v2
       with:
         deno-version: v1.x
     - name: Run Deno tests
-      working-directory: supabase/functions/stellar-send
-      run: deno test
+      working-directory: supabase/functions
+      run: deno test --allow-net --allow-read
