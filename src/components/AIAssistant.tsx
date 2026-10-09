@@ -22,6 +22,7 @@ interface TxPending {
 interface TxResult {
   status: 'success' | 'error';
   hash?: string;
+  fee?: string;
   message: string;
   amount?: string;
   asset?: string;
@@ -46,6 +47,30 @@ interface TxHistoryEntry {
   timestamp: string;
   status: 'success' | 'error';
 }
+
+const TX_HISTORY_KEY = 'stellarflow_ai_tx_history';
+
+const STROOPS_PER_XLM = 10_000_000;
+
+const formatFee = (fee?: string | number): string | null => {
+  if (fee === undefined || fee === null || fee === '') return null;
+  const stroops = Number(fee);
+  if (!Number.isFinite(stroops)) return null;
+  const xlm = stroops / STROOPS_PER_XLM;
+  return `${xlm.toFixed(7).replace(/0+$/, '').replace(/\.$/, '')} XLM`;
+};
+
+const loadTxHistory = (): TxHistoryEntry[] => {
+  try {
+    return JSON.parse(localStorage.getItem(TX_HISTORY_KEY) || '[]');
+  } catch { return []; }
+};
+
+const saveTxHistory = (entry: TxHistoryEntry) => {
+  const history = loadTxHistory();
+  history.unshift(entry);
+  localStorage.setItem(TX_HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
+};
 
 const EXAMPLE_PROMPTS = [
   { text: 'Send 10 XLM to GDEMO...', icon: ArrowUpRight },
@@ -313,7 +338,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
       // Done
       setMessages(prev => prev.map(m =>
         m.id === msgId
-          ? { ...m, txPending: undefined, txResult: { status: 'success', hash: result.hash, message: `Payment successful! Sent ${amount} ${asset}`, amount, asset, destination, timestamp: result.createdAt } }
+          ? { ...m, txPending: undefined, txResult: { status: 'success', hash: result.hash, fee: result.fee, message: `Payment successful! Sent ${amount} ${asset}`, amount, asset, destination, timestamp: result.createdAt } }
           : m
       ));
 
@@ -397,10 +422,12 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
           <span className="text-muted-foreground">Amount</span>
           <span className="text-foreground font-semibold">{amount} {asset}</span>
         </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Network Fee</span>
-          <span className="text-primary">~0.00001 XLM</span>
-        </div>
+        {status === 'awaiting' && (
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Network Fee</span>
+            <span className="text-muted-foreground italic">determined at submission</span>
+          </div>
+        )}
 
         {/* Status indicator */}
         {isProcessing && statusInfo && (
@@ -430,7 +457,7 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
 
   const renderTxResult = (msg: Message) => {
     if (!msg.txResult) return null;
-    const { status, hash, message, amount, asset } = msg.txResult;
+    const { status, hash, fee, message, amount, asset } = msg.txResult;
     const isSuccess = status === 'success';
 
     return (
@@ -448,6 +475,12 @@ const AIAssistant = ({ onNavigate }: AIAssistantProps) => {
             {!isSuccess && <p className="text-[10px] text-destructive/80 mt-0.5">{message}</p>}
           </div>
         </div>
+        {isSuccess && formatFee(fee) && (
+          <div className="flex justify-between text-[10px] mt-2">
+            <span className="text-muted-foreground">Network Fee</span>
+            <span className="text-primary">{formatFee(fee)}</span>
+          </div>
+        )}
         {hash && (
           <p className="text-[10px] text-muted-foreground mt-2 font-mono break-all bg-secondary/20 rounded px-2 py-1">
             TX: {hash}

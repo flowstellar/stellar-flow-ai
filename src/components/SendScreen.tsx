@@ -7,6 +7,7 @@ import { useWallet } from '@/hooks/useWallet';
 import { usePin } from '@/hooks/usePin';
 import { stellarApi } from '@/lib/stellarApi';
 import { MEMO_BYTE_LIMIT, getMemoByteLength, isMemoWithinLimit } from '@/lib/memo';
+import { formatStroopsToXlm } from '@/lib/fee';
 import ScheduledPayments from './ScheduledPayments';
 import PinLock from './PinLock';
 
@@ -54,6 +55,7 @@ const SendScreen = () => {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [txHash, setTxHash] = useState('');
+  const [fee, setFee] = useState<string | null>(null);
   const [showPinVerify, setShowPinVerify] = useState(false);
   const [parsedAmount, setParsedAmount] = useState<number | null>(null);
 
@@ -138,6 +140,7 @@ const SendScreen = () => {
         memo: memo || undefined,
       });
       setTxHash(result.hash);
+      setFee(result.fee);
       setSent(true);
       await refreshBalance();
       toast({ title: 'Payment sent successfully! ✅', description: `You sent money across borders instantly.` });
@@ -149,6 +152,7 @@ const SendScreen = () => {
         setMemo('');
         setTxHash('');
         setParsedAmount(null);
+        setFee(null);
       }, 2500);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Transaction failed';
@@ -191,7 +195,7 @@ const SendScreen = () => {
             <input id="send-amount" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" type="number"
               className="flex-1 bg-secondary/50 border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
             <button onClick={() => setShowAssets(!showAssets)}
-              className="glass-card px-4 py-3 flex items-center gap-2 text-sm font-medium text-foreground hover:bg-secondary/50 transition-colors min-w-[90px] justify-center">
+              className="glass-card px-4 py-3 flex items-center gap-2 text-sm font-medium text-foreground hover:bg-secondary/50 transition-colors min-w[90px] justify-center">
               {asset} <ChevronDown className="w-3 h-3" />
             </button>
           </div>
@@ -268,6 +272,9 @@ const SendScreen = () => {
               </motion.div>
               <p className="text-sm text-foreground font-semibold mt-3">You sent money across borders instantly!</p>
               <p className="text-xs text-muted-foreground mt-1">No hidden fees. Powered by Stellar.</p>
+              {fee !== null && (
+                <p className="text-xs text-muted-foreground mt-1">Network Fee: {formatStroopsToXlm(fee)} XLM</p>
+              )}
               {txHash && (
                 <p className="text-[10px] text-muted-foreground mt-2 font-mono break-all px-4 text-center">{txHash}</p>
               )}
@@ -289,6 +296,8 @@ const SendScreen = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Fee</span>
                 <span className="text-primary texl-xs">~0.00001 XLM</span>
+                <span className="text-muted-foreground">Network Fee</span>
+                <span className="text-muted-foreground text-xs">Fee determined at submission</span>
               </div>
               {memo && (
                 <div className="flex justify-between text-sm">
@@ -305,6 +314,7 @@ const SendScreen = () => {
                 {sending ? <<>Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
                 {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
                 {sending ? <<><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
+                {sending ? <><span className="hidden"></span><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : 'Confirm & Send'}
               </button>
             </DialogFooter>
           )}
