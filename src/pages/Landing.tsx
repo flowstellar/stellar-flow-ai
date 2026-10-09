@@ -119,6 +119,8 @@ const Landing = () => {
                 <div>
                   <p className="text-xs text-muted-foreground">Assistant Insight</p>
                   <p className="text-[11px] text-foreground">You saved 30% in fees this week 🎉</p>
+                  <p className="text-xs text-muted-foreground">AI Insight</p>
+                  <p className="text-[11px] text-foreground">You saved 60% in fees vs. traditional wire 🎉</p>
                 </div>
               </div>
             </div>

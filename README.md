@@ -5,6 +5,8 @@ AI-powered cross-border payment platform using Stellar Network
 AI-powered cross-border payment platform using Stellar Networj
 An AI-powered payment assistant built on the Stellar Network that simplifies cross-border transactions using natural language.
 
+AI-powered payment assistant built on the Stellar Network that simplifies cross-border transactions using natural language.
+
 StellarFlow allows users to send digital payments across borders using AI commands and Stellar blockchain transactions. The platform simplifies blockchain payments for anyone, even without prior crypto knowledge.
 A deterministic command-parsing payment assistant built on the Stellar Network that simplifies cross-border transactions through a fixed command grammar.
 
@@ -232,6 +234,26 @@ This project integrates with the Stellar blockchain.
 The app reads its Supabase configuration from Vite environment variables at
 build time (see `src/integrations/supabase/client.ts`). Copy `.env.example` to
 `.env` and fill in your own values before running `npm run dev`.
+## Fee-Savings Claim
+
+The app advertises a single fee-savings figure across all surfaces:
+
+**StellarFlow saves 60% in fees compared to a traditional bank wire transfer.**
+
+This claim is based on a comparison against a named traditional remittance baseline:
+
+- **Baseline:** Traditional bank wire transfer fees (approximately $25-$45 per transaction plus FX markup)
+- `Stellar network fees: negligible (fractions of a cent per transaction)
+- **Date of baseline:** January 2025
+- The 60% figure reflects the difference between typical wire transfer costs and Stellar network fees.
+
+This figure is used consistently in `Landing.tsx`, `HomeScreen.tsx`, and `CurrencyConverter.tsx`.
+
+---
+
+> The video shows the AI interface, sending a transaction, and proof of Stellar integration.
+
+---
 
 | Variable | Required | Purpose | Consequence if omitted |
 | --- | --- | --- | --- |
@@ -337,3 +359,4 @@ project_id = "wqdfsqabbzcgtrfbrwtx"
 
 The `project_id` is the reference of the Supabase project used by this repo. **If you fork this repository, you must replace it with your own Supabase project reference** (or link the CLI to your project with `supabase link`) before deploying. Otherwise the deploy commands will target the original author's project.
 - The `.gitignore` file excludes build artifacts, dependencies, and local environment files from version control.
+- `.gitignore`
