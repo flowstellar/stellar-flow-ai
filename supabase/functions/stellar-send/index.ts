@@ -7,6 +7,7 @@ import {
   Operation,
   Asset,
   Memo,
+  Account,
 } from "npm:@stellar/stellar-sdk@13";
 
 const corsHeaders = {
@@ -18,6 +19,10 @@ const corsHeaders = {
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
 
 const MINIMUM_ACCOUNT_BALANCE = 1; // 1 XLM base reserve
+interface HorizonAccountResponse {
+  sequence: string;
+  [key: string]: unknown;
+}
 
 Deno.serve(async (req) => {
 export const handler = async (req: Request): Promise<Response> => {
@@ -87,7 +92,7 @@ export const handler = async (req: Request): Promise<Response> => {
         `Failed to load source account [${accountRes.status}]: ${await accountRes.text()}`
       );
     }
-    const sourceAccount = await accountRes.json();
+    const sourceAccount = (await accountRes.json()) as HorizonAccountResponse;
 
     // Check if destination exists
     const destRes = await fetch(`${HORIZON_URL}/accounts/${destination}`);
@@ -109,7 +114,10 @@ export const handler = async (req: Request): Promise<Response> => {
     }
 
     // Build transaction
-    const account = {
+    // The Stellar SDK accepts any object implementing the Account interface
+    // (accountId, sequenceNumber, incrementSequenceNumber). We build a lightweight
+    // adapter around the Horizon response instead of fetching a full Account object.
+    const account: Account = {
       accountId: () => sourceKeypair.publicKey(),
       sequenceNumber: () => sourceAccount.sequence,
       incrementSequenceNumber: () => {
@@ -117,9 +125,9 @@ export const handler = async (req: Request): Promise<Response> => {
           BigInt(sourceAccount.sequence) + 1n
         ).toString();
       },
-    };
+    } as Account;
 
-    let builder = new TransactionBuilder(account as any, {
+    let builder = new TransactionBuilder(account, {
       fee: "100",
       networkPassphrase: Networks.TESTNET,
     });

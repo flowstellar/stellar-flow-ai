@@ -1,5 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.dts";
 import { Keypair } from "npm:@stellar/stellar-sdk13";
+import "jsr:@supabase/functions-js/edge-runtime.d";
+import { Keypair } from "npm:@stellar/stellar-sdk@13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,12 +10,18 @@ const corsHeaders = {
 };
 
 export const handler = async (req: Request): Promise<Response> => {
+interface WalletRequest {
+  action?: string;
+  secretKey?: string;
+}
+
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { action, secretKey } = await req.json();
+    const { action, secretKey } = (await req.json()) as WalletRequest;
 
     if (action === "create") {
       const keypair = Keypair.random();
