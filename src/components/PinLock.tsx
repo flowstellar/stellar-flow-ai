@@ -63,7 +63,7 @@ const PinLock = ({ mode, onSuccess, onFailure, onCancel, title }: PinLockProps) 
     : 'Enter PIN');
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center px-6">
+    <div className="fixed inset-0 z-[100] bg-background flex flex-col  items-center justify-center px-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
         <div className="w-16 h-16 rounded-2xl neon-gradient mx-auto mb-4 flex items-center justify-center">
           <Lock className="w-8 h-8 text-primary-foreground" />
@@ -78,11 +78,11 @@ const PinLock = ({ mode, onSuccess, onFailure, onCancel, title }: PinLockProps) 
       <motion.div animate={shake ? { x: [0, -10, 10, -10, 10, 0] } : {}} transition={{ duration: 0.4 }}
         className="flex gap-4 mb-8">
         {Array.from({ length: maxLength }).map((_, i) => (
-          <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${
-            i < pin.length
+          <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${ i < pin.length
               ? 'bg-primary border-primary shadow-lg shadow-primary/30'
               : 'border-muted-foreground/30'
           }`.replace(/\s+/g, ' ') } />
+            }`} />
         ))}
       </motion.div>
 
