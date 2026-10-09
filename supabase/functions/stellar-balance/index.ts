@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import "jsr:@supabase/functions-js/edge-runtime.dts";
 
 const corsHeaders = {
@@ -118,6 +119,70 @@ interface HorizonBalance {
 interface HorizonAccount {
   sequence: string;
   balances?: HorizonBalance[];
+// --- Rate limiting ---
+// Per-caller fixed-window throttle. The edge runtime is single-isolate per hot
+// instance, so an in-memory map is enough to stop a curl loop from draining the
+// account. Expired entries are swept on each call so the map cannot grow
+// unbounded.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
+const RATE_LIMIT_MAP_MAX = 10_000;
+
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+}
+
+const rateLimitMap = new Map<string, RateLimitEntry>();
+
+function clientIdentity(req: Request): string {
+  const auth = req.headers.get("authorization");
+  if (auth) {
+    // Hash the token so the raw credential is never kept in memory.
+    return `auth:${hashString(auth)}`;
+  }
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return `ip:${forwarded.split(",")[0].trim()}`;
+  }
+  return "anon:unknown";
+}
+
+function hashString(value: string): string {
+  // FNV-1 -> 32-bit int -> unsigned hex. Cheap and sufficient for bucketing.
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+function sweepRateLimitMap(now: number) {
+  if (rateLimitMap.size < RATE_LIMIT_MAP_MAX) return;
+  for (const [key, entry] of rateLimitMap) {
+    if (now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+      rateLimitMap.delete(key);
+    }
+  }
+}
+
+function checkRateLimit(clientId: string): { allowed: boolean; retryAfter: number } {
+  const now = Date.now();
+  sweepRateLimitMap(now);
+  const existing = rateLimitMap.get(clientId);
+  if (!existing || now - existing.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(clientId, { count: 1, windowStart: now });
+    return { allowed: true, retryAfter: 0 };
+  }
+  if (existing.count >= RATE_LIMIT_MAX_REQUESTS) {
+    const retryAfter = Math.ceil(
+      (existing.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000
+    );
+    return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
+  }
+  existing.count += 1;
+  return { allowed: true, retryAfter: 0 };
 }
 
 Deno.serve(async (req) => {
@@ -133,6 +198,23 @@ Deno.serve(async (req) => {
     const auth = await requireAuth(req);
     if (!isAuthResult(auth)) {
       return auth;
+    const clientId = clientIdentity(req);
+    const rate = checkRateLimit(clientId);
+    if (!rate.allowed) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Rate limit exceeded. Please retry later.",
+        }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(rate.retryAfter),
+          },
+        }
+      );
     }
 
     const { publicKey } = await req.json();

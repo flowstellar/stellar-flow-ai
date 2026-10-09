@@ -73,20 +73,22 @@ jobs:
     - name: Run npm audit
       run: npm audit --audit-level=high
   functions:
-    name: Edge Functions Tests
+    name: functions
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: supabase/functions
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Deno
-      uses: denoland/setup-deno@v2
+    - uses: actions/checkout@v4
+    - uses: denoland/setup-deno@v2
       with:
-        deno-version: v1.x
-    - name: Run tests
-      run: deno test --allow-none
+        deno-version: v1.46.0
+    - name: Type check
+      run: deno check stellar-send/index.ts
+    - name: Test
+      run: deno test --allow-net --allow-env --allow-read stellar-send/
+    - name: Lint
+      run: deno lint stellar-send/
   guard-env:
     name: Ensure .env is not tracked
     runs-on: ubuntu-latest
