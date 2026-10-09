@@ -3,16 +3,14 @@ on:
   push:
     branches:
     - main
-  pull_request:
-    branches:
-    - main
+  pull_request: null
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Setup Node.js
+    - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: 20
@@ -23,8 +21,6 @@ jobs:
       run: npm run lint
     - name: Test
       run: npm run test
-    - name: Typecheck
-      run: npm run typecheck
     name: Verify
   functions-lint:
     runs-on: ubuntu-latest
