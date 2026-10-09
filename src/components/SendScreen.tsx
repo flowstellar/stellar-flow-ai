@@ -38,6 +38,9 @@ function truncateUtf8Bytes(value: string, maxBytes: number): string {
   return new TextDecoder().decode(bytes.subarray(0, end));
 }
 
+const BASE_RESERVE_XLM = 1;
+const FEE_XLM = 0.00001;
+
 const SendScreen = () => {
   const { wallet, refreshBalance } = useWallet();
   const { isPinSet, verifyPin } = usePin();
@@ -52,13 +55,16 @@ const SendScreen = () => {
   const [txHash, setTxHash] = useState('');
   const [showPinVerify, setShowPinVerify] = useState(false);
 
+  const nativeBalance = typeof wallet?.balance === 'number' ? wallet.balance : 0;
+  const spendableBalance = Math.floor((nativeBalance - BASE_RESERVE_XLM - FEE_XLM) * 1e7) / 1e7;
+
   const handleSend = () => {
     if (!wallet) {
       toast({ title: 'No wallet', description: 'Create or import a wallet first', variant: 'destructive' });
       return;
     }
     if (!recipient || !amount) {
-      toast({ title: 'Missing fields', description: 'Please fill in all fields', variant: 'destructive' });
+      toast({ title: 'Missing fields', description: 'Please fill in all field', variant: 'destructive' });
       return;
     }
     const amountNum = parseFloat(amount);
@@ -71,11 +77,16 @@ const SendScreen = () => {
       toast({
         title: 'Amount below minimum',
         description: `New accounts must be funded with at least ${MIN_ACCOUNT_BALANCE} XLM. Please fund the account first or send at least ${MIN_ACCOUNT_BALANCE} XLM.`,
+    if (spendableBalance > 0 && amountNum > spendableBalance) {
+      toast({
+        title: 'Insufficient balance',
+        description: `Available amount: ${spendableBalance.toFixed(7)} XLM`,
         variant: 'destructive',
       });
       return;
     }
     // If PiN is set, require verification first
+    // If PIN is set, require verification first
     if (isPinSet) {
       setShowPinVerify(true);
     } else {
@@ -189,6 +200,7 @@ const SendScreen = () => {
 
         {isPinSet && (
           <p className="text-[10px] text-muted-foreground text-center">🔂 PIN verification required before sending</p>
+          <p className="text-[10px] text-muted-foreground text-center">🔔 PIN verification required before sending</p>
         )}
       </motion.div>
 
