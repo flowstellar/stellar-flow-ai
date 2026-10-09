@@ -54,6 +54,7 @@ const SendScreen = () => {
   const [sent, setSent] = useState(false);
   const [txHash, setTxHash] = useState('');
   const [showPinVerify, setShowPinVerify] = useState(false);
+  const [parsedAmount, setParsedAmount] = useState<number | null>(null);
 
   const nativeBalance = typeof wallet?.balance === 'number' ? wallet.balance : 0;
   const spendableBalance = Math.floor((nativeBalance - BASE_RESERVE_XLM - FEE_XLM) * 1e7) / 1e7;
@@ -86,6 +87,12 @@ const SendScreen = () => {
       return;
     }
     // If PiN is set, require verification first
+    const amountNum = Number(amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      toast({ title: 'Invalid amount', description: 'Amount must be positive', variant: 'destructive' });
+      return;
+    }
+    setParsedAmount(amountNum);
     // If PIN is set, require verification first
     if (isPinSet) {
       setShowPinVerify(true);
@@ -105,12 +112,18 @@ const SendScreen = () => {
 
   const confirmSend = async () => {
     if (!wallet) return;
+    const amountNum = parsedAmount !== null ? parsedAmount : Number(amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      toast({ title: 'Invalid amount', description: 'Amount must be positive', variant: 'destructive' });
+      setShowConfirm(false);
+      return;
+    }
     setSending(true);
     try {
       const result = await stellarApi.sendPayment({
         secretKey: wallet.secretKey,
         destination: recipient,
-        amount,
+        amount: String(amountNum),
         memo: memo || undefined,
       });
       setTxHash(result.hash);
@@ -124,6 +137,7 @@ const SendScreen = () => {
         setAmount('');
         setMemo('');
         setTxHash('');
+        setParsedAmount(null);
       }, 2500);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Transaction failed';
@@ -242,7 +256,7 @@ const SendScreen = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="text-foreground font-semibold">{amount} {asset}</span>
+                <span className="text-foreground font-semibold">{parsedAmount !== null ? parsedAmount : amount} {asset}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Network</span>
