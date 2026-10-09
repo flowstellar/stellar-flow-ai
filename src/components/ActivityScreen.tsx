@@ -5,7 +5,7 @@ import { TRANSACTIONS } from '@/lib/mockData';
 
 type FilterType = 'all' | 'sent' | 'received';
 
-const EXTENDED_TRANSACTIONS = [
+export const EXTENDED_TRANSACTIONS = [
   ...TRANSACTIONS,
   { id: '6', type: 'received' as const, amount: '75.00', asset: 'XLM', address: 'GBKX...4F2Q', date: '2 days ago', status: 'completed' as const },
   { id: '7', type: 'sent' as const, amount: '30.00', asset: 'USDC', address: 'GDPK...9M1T', date: '3 days ago', status: 'completed' as const },
@@ -52,7 +52,7 @@ const ActivityScreen = () => {
       {/* Filter tabs */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
         className="flex gap-2">
-        {(['all', 'sent', 'received'] as FilterType[]).map((f) => (
+        {('all', 'sent', 'received'] as FilterType[]).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-4 py-1.5 rounded-full text-xs font-medium capitalize transition-all ${
               filter === f ? 'neon-gradient text-primary-foreground' : 'glass-card text-muted-foreground hover:text-foreground'
@@ -77,7 +77,8 @@ const ActivityScreen = () => {
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.03 }}
             className="glass-card p-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+              <div className={`w¹ h
+9 rounded-xl flex items-center justify-center ${
                 tx.type === 'sent' ? 'bg-destructive/10' : 'bg-primary/10'
               }`}>
                 {tx.type === 'sent'
@@ -99,7 +100,7 @@ const ActivityScreen = () => {
               }`}>
                 {tx.status === 'pending'
                   ? <><Clock className="w-2.5 h-2.5" /> Pending</>
-                  : <><CheckCircle2 className="w-2.5 h-2.5" /> Success</>}
+                  : <><send></send><CheckCircle2 className="w-2.5 h-2.5" /> Success</>}
               </span>
             </div>
           </motion.div>
