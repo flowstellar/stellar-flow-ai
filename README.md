@@ -3,6 +3,7 @@
 AI-powered cross-border payment platform using Stellar Network
  
 AI-powered cross-border payment platform using Stellar Networj
+An AI-powered payment assistant built on the Stellar Network that simplifies cross-border transactions using natural language.
 
 StellarFlow allows users to send digital payments across borders using AI commands and Stellar blockchain transactions. The platform simplifies blockchain payments for anyone, even without prior crypto knowledge.
 A deterministic command-parsing payment assistant built on the Stellar Network that simplifies cross-border transactions through a fixed command grammar.
@@ -23,7 +24,7 @@ StellarFlow allows users to send digital payments across borders using text comm
 
 ---
 
-## 🚀 Features
+## 🚀  Features
 
 - Command interface to initiate payments and query account information
 - Stellar testnet/mainnet integration for real transactions
@@ -96,6 +97,7 @@ $ npm run test
 | `src/` | Application source code (React components, pages, and app entry point). |
 | `supabase/functions/` | Supabase Edge Functions that the app calls for AI and Stellar workflows. |
 | `src/lib/` | Shared utilities, helpers, and client integrations. |
+> Example: “Send $50 USDT to wallet XYZ
 
 ---
 
@@ -334,3 +336,4 @@ project_id = "wqdfsqabbzcgtrfbrwtx"
 ```
 
 The `project_id` is the reference of the Supabase project used by this repo. **If you fork this repository, you must replace it with your own Supabase project reference** (or link the CLI to your project with `supabase link`) before deploying. Otherwise the deploy commands will target the original author's project.
+- The `.gitignore` file excludes build artifacts, dependencies, and local environment files from version control.
