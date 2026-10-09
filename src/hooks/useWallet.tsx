@@ -25,7 +25,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [balanceLoading, setBalanceLoading] = useState(false);
 
-  const saveWallet = (w: WalletData) => {
+  const saveWallet = (w : WalletData) => {
     setWallet(w);
     localStorage.setItem(WALLET_KEY, JSON.stringify(w));
   };
